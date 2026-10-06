@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+
+<meta name="viewport"
+      content="width=device-width,
+               initial-scale=1.0,
+               maximum-scale=1.0,
+               user-scalable=no">
+
+<title>匿名提問｜資訊系談心閣</title>
+
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Microsoft JhengHei",
+        "Noto Sans TC",
+        sans-serif;
+
+    background:
+        linear-gradient(
+            135deg,
+            #eef4ff,
+            #f7f2ff,
+            #fff7fb
+        );
+
+    color: #303a51;
+    min-height: 100vh;
+}
+
+/* 導覽列 */
+
+.navbar {
+    height: 68px;
+
+    background: rgba(255,255,255,0.92);
+
+    backdrop-filter: blur(18px);
+
+    border-bottom:
+        1px solid rgba(120,140,180,0.15);
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 0 5%;
+
+    position: sticky;
+    top: 0;
+    z-index: 20;
+}
+
+.logo-area {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+}
+
+.logo {
+    width: 42px;
+    height: 42px;
+
+    border-radius: 13px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #789aff,
+            #887be8
+        );
+
+    color: white;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-weight: 800;
+
+    box-shadow:
+        0 8px 20px rgba(100,120,220,0.25);
+}
+
+.logo-title {
+    font-size: 16px;
+    font-weight: 800;
+}
+
+.logo-sub {
+    font-size: 10px;
+    color: #929bad;
+    margin-top: 2px;
+}
+
+.back-btn {
+    border: none;
+
+    background: #f0f3fa;
+
+    color: #68738a;
+
+    padding: 9px 14px;
+
+    border-radius: 11px;
+
+    cursor: pointer;
+
+    transition: 0.2s;
+}
+
+.back-btn:hover {
+    background: #e5e9f3;
+}
+
+/* 主體 */
+
+.container {
+    width: min(1050px, 92%);
+
+    margin: 30px auto 60px;
+}
+
+/* 頁面標題 */
+
+.hero {
+    background:
+        linear-gradient(
+            135deg,
+            #789aff,
+            #887be8
+        );
+
+    color: white;
+
+    padding: 30px;
+
+    border-radius: 23px;
+
+    margin-bottom: 20px;
+
+    box-shadow:
+        0 14px 35px rgba(100,120,220,0.2);
+}
+
+.hero h1 {
+    font-size: 25px;
+    margin-bottom: 8px;
+}
+
+.hero p {
+    font-size: 13px;
+    opacity: 0.9;
+    line-height: 1.7;
+}
+
+/* 發問區 */
+
+.question-box {
+    background: white;
+
+    border-radius: 20px;
+
+    padding: 23px;
+
+    margin-bottom: 20px;
+
+    border:
+        1px solid rgba(120,140,180,0.12);
+
+    box-shadow:
+        0 6px 22px rgba(60,80,130,0.05);
+}
+
+.section-title {
+    font-size: 16px;
+    font-weight: 800;
+
+    margin-bottom: 15px;
+}
+
+input,
+textarea {
+    width: 100%;
+
+    border: 1px solid #e3e7ef;
+
+    background: #f9faff;
+
+    border-radius: 13px;
+
+    padding: 13px;
+
+    font-family: inherit;
+
+    color: #303a51;
+
+    outline: none;
+
+    transition: 0.2s;
+
+    margin-bottom: 11px;
+}
+
+input:focus,
+textarea:focus {
+    border-color: #819bf0;
+
+    background: white;
+
+    box-shadow:
+        0 0 0 3px rgba(120,150,240,0.1);
+}
+
+textarea {
+    height: 120px;
+
+    resize: vertical;
+
+    line-height: 1.7;
+}
+
+.char-count {
+    text-align: right;
+
+    font-size: 11px;
+
+    color: #9aa3b4;
+
+    margin-top: -7px;
+
+    margin-bottom: 13px;
+}
+
+.form-bottom {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 10px;
+}
+
+.anonymous-label {
+    font-size: 12px;
+
+    color: #6f7a90;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 7px;
+}
+
+.anonymous-label input {
+    width: auto;
+
+    margin: 0;
+}
+
+.submit-btn {
+    border: none;
+
+    background:
+        linear-gradient(
+            135deg,
+            #789aff,
+            #887be8
+        );
+
+    color: white;
+
+    padding: 11px 20px;
+
+    border-radius: 12px;
+
+    cursor: pointer;
+
+    font-weight: 700;
+
+    box-shadow:
+        0 7px 15px rgba(100,120,220,0.2);
+}
+
+/* 問題列表 */
+
+.question-list {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 14px;
+}
+
+.question-card {
+    background: white;
+
+    border-radius: 18px;
+
+    padding: 20px;
+
+    border:
+        1px solid rgba(120,140,180,0.12);
+
+    box-shadow:
+        0 5px 18px rgba(60,80,130,0.04);
+}
+
+.question-top {
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    margin-bottom: 10px;
+}
+
+.tag {
+    background: #edf1ff;
+
+    color: #6785d9;
+
+    border-radius: 8px;
+
+    padding: 5px 9px;
+
+    font-size: 10px;
+}
+
+.time {
+    color: #a0a8b8;
+
+    font-size: 11px;
+}
+
+.question-title {
+    font-size: 17px;
+
+    font-weight: 800;
+
+    margin-bottom: 8px;
+
+    line-height: 1.5;
+}
+
+.question-content {
+    color: #737e92;
+
+    font-size: 13px;
+
+    line-height: 1.7;
+
+    white-space: pre-wrap;
+
+    margin-bottom: 14px;
+}
+
+.question-bottom {
+    display: flex;
+
+    justify-content: space-between;
+
+    color: #929bad;
+
+    font-size: 11px;
+}
+
+.empty {
+    background: white;
+
+    border-radius: 20px;
+
+    padding: 50px 20px;
+
+    text-align: center;
+
+    color: #9aa3b4;
+}
+
+.empty-icon {
+    font-size: 38px;
+
+    margin-bottom: 10px;
+}
+
+.notice {
+    background: #f4f6fb;
+
+    border-radius: 11px;
+
+    padding: 11px;
+
+    color: #7e889b;
+
+    font-size: 11px;
+
+    line-height: 1.6;
+
+    margin-top: 12px;
+}
+
+@media(max-width:600px) {
+
+    .navbar {
+        padding: 0 4%;
+    }
+
+    .logo-sub {
+        display: none;
+    }
+
+    .container {
+        width: 94%;
+
+        margin-top: 18px;
+    }
+
+    .hero {
+        padding: 24px;
+    }
+
+    .hero h1 {
+        font-size: 21px;
+    }
+
+    .form-bottom {
+        align-items: stretch;
+
+        flex-direction: column;
+    }
+
+    .submit-btn {
+        width: 100%;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header class="navbar">
+
+    <div class="logo-area">
+
+        <div class="logo">
+            問
+        </div>
+
+        <div>
+            <div class="logo-title">
+                資訊系談心閣
+            </div>
+
+            <div class="logo-sub">
+                匿名提問區
+            </div>
+        </div>
+
+    </div>
+
+    <button
+        class="back-btn"
+        onclick="goHome()">
+
+        ← 回首頁
+
+    </button>
+
+</header>
+
+
+<main class="container">
+
+    <section class="hero">
+
+        <h1>
+            ❓ 匿名提問
+        </h1>
+
+        <p>
+            有些問題不方便用自己的名字問？
+            在這裡留下問題，讓資訊系的大家一起討論。
+        </p>
+
+    </section>
+
+
+    <section class="question-box">
+
+        <div class="section-title">
+            發表一個問題
+        </div>
+
+        <input
+            id="questionTitle"
+            type="text"
+            maxlength="80"
+            placeholder="例如：大家都是怎麼開始學程式的？">
+
+        <textarea
+            id="questionContent"
+            maxlength="1000"
+            placeholder="把想問的事情寫在這裡……"></textarea>
+
+        <div
+            class="char-count"
+            id="charCount">
+
+            0 / 1000
+
+        </div>
+
+        <div class="form-bottom">
+
+            <label class="anonymous-label">
+
+                <input
+                    id="anonymous"
+                    type="checkbox"
+                    checked>
+
+                以匿名身分發布
+
+            </label>
+
+            <button
+                class="submit-btn"
+                onclick="submitQuestion()">
+
+                發布問題
+
+            </button>
+
+        </div>
+
+        <div class="notice">
+
+            🔒 匿名只是顯示名稱為匿名。
+            目前這是前端展示版本，資料暫存在此瀏覽器中。
+
+        </div>
+
+    </section>
+
+
+    <section>
+
+        <div class="section-title">
+            最新問題
+        </div>
+
+        <div
+            class="question-list"
+            id="questionList">
+
+        </div>
+
+    </section>
+
+</main>
+
+
+<script>
+
+/* =========================
+   使用者
+========================= */
+
+const loginUser =
+    sessionStorage.getItem("loginUser")
+    || "student";
+
+
+/* =========================
+   儲存名稱
+========================= */
+
+const STORAGE_KEY =
+    "talkingHallQuestions";
+
+
+/* =========================
+   DOM
+========================= */
+
+const titleInput =
+    document.getElementById("questionTitle");
+
+const contentInput =
+    document.getElementById("questionContent");
+
+const charCount =
+    document.getElementById("charCount");
+
+
+/* =========================
+   字數
+========================= */
+
+contentInput.addEventListener(
+    "input",
+    function() {
+
+        charCount.textContent =
+            contentInput.value.length
+            + " / 1000";
+
+    }
+);
+
+
+/* =========================
+   取得問題
+========================= */
+
+function getQuestions() {
+
+    try {
+
+        const data =
+            localStorage.getItem(
+                STORAGE_KEY
+            );
+
+        if (!data) {
+            return [];
+        }
+
+        const questions =
+            JSON.parse(data);
+
+        if (!Array.isArray(questions)) {
+            return [];
+        }
+
+        return questions;
+
+    } catch (error) {
+
+        console.error(
+            "讀取問題失敗:",
+            error
+        );
+
+        return [];
+
+    }
+
+}
+
+
+/* =========================
+   時間
+========================= */
+
+function formatTime(dateString) {
+
+    const time =
+        new Date(dateString).getTime();
+
+    const diff =
+        Date.now() - time;
+
+    const minute =
+        60 * 1000;
+
+    const hour =
+        60 * minute;
+
+    const day =
+        24 * hour;
+
+
+    if (diff < minute) {
+        return "剛剛";
+    }
+
+    if (diff < hour) {
+        return Math.floor(
+            diff / minute
+        ) + " 分鐘前";
+    }
+
+    if (diff < day) {
+        return Math.floor(
+            diff / hour
+        ) + " 小時前";
+    }
+
+    if (diff < day * 7) {
+        return Math.floor(
+            diff / day
+        ) + " 天前";
+    }
+
+
+    const date =
+        new Date(dateString);
+
+    return (
+        date.getFullYear()
+        + "/"
+        + String(
+            date.getMonth() + 1
+        ).padStart(2, "0")
+        + "/"
+        + String(
+            date.getDate()
+        ).padStart(2, "0")
+    );
+
+}
+
+
+/* =========================
+   顯示問題
+========================= */
+
+function renderQuestions() {
+
+    const list =
+        document.getElementById(
+            "questionList"
+        );
+
+    list.innerHTML = "";
+
+
+    const questions =
+        getQuestions();
+
+
+    if (questions.length === 0) {
+
+        list.innerHTML = `
+            <div class="empty">
+
+                <div class="empty-icon">
+                    💭
+                </div>
+
+                <div>
+                    目前還沒有問題
+                </div>
+
+                <div style="margin-top:6px;font-size:11px;">
+                    成為第一個提問的人吧！
+                </div>
+
+            </div>
+        `;
+
+        return;
+    }
+
+
+    questions.forEach(
+        function(question) {
+
+            const card =
+                document.createElement("article");
+
+            card.className =
+                "question-card";
+
+
+            const top =
+                document.createElement("div");
+
+            top.className =
+                "question-top";
+
+
+            const tag =
+                document.createElement("span");
+
+            tag.className =
+                "tag";
+
+            tag.textContent =
+                "匿名提問";
+
+
+            const time =
+                document.createElement("span");
+
+            time.className =
+                "time";
+
+            time.textContent =
+                formatTime(
+                    question.createdAt
+                );
+
+
+            top.appendChild(tag);
+            top.appendChild(time);
+
+
+            const title =
+                document.createElement("div");
+
+            title.className =
+                "question-title";
+
+            title.textContent =
+                question.title;
+
+
+            const content =
+                document.createElement("div");
+
+            content.className =
+                "question-content";
+
+            content.textContent =
+                question.content;
+
+
+            const bottom =
+                document.createElement("div");
+
+            bottom.className =
+                "question-bottom";
+
+
+            const author =
+                document.createElement("span");
+
+            author.textContent =
+                "👤 "
+                +
+                (
+                    question.anonymous
+                    ? "匿名使用者"
+                    : question.author
+                );
+
+
+            const reply =
+                document.createElement("span");
+
+            reply.textContent =
+                "💬 0 個回答";
+
+
+            bottom.appendChild(author);
+            bottom.appendChild(reply);
+
+
+            card.appendChild(top);
+            card.appendChild(title);
+            card.appendChild(content);
+            card.appendChild(bottom);
+
+
+            list.appendChild(card);
+
+        }
+    );
+
+}
+
+
+/* =========================
+   發布問題
+========================= */
+
+function submitQuestion() {
+
+    const title =
+        titleInput.value.trim();
+
+    const content =
+        contentInput.value.trim();
+
+    const anonymous =
+        document.getElementById(
+            "anonymous"
+        ).checked;
+
+
+    if (title.length < 2) {
+
+        alert(
+            "問題標題至少需要 2 個字。"
+        );
+
+        titleInput.focus();
+
+        return;
+    }
+
+
+    if (content.length < 5) {
+
+        alert(
+            "問題內容至少需要 5 個字。"
+        );
+
+        contentInput.focus();
+
+        return;
+    }
+
+
+    if (content.length > 1000) {
+
+        alert(
+            "問題內容不能超過 1000 個字。"
+        );
+
+        return;
+    }
+
+
+    const question = {
+
+        id:
+            Date.now().toString(),
+
+        title:
+            title,
+
+        content:
+            content,
+
+        author:
+            loginUser,
+
+        anonymous:
+            anonymous,
+
+        createdAt:
+            new Date().toISOString()
+
+    };
+
+
+    const questions =
+        getQuestions();
+
+
+    questions.unshift(
+        question
+    );
+
+
+    localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify(questions)
+    );
+
+
+    titleInput.value = "";
+
+    contentInput.value = "";
+
+    charCount.textContent =
+        "0 / 1000";
+
+
+    renderQuestions();
+
+
+    alert(
+        "問題發布成功！"
+    );
+
+}
+
+
+/* =========================
+   回首頁
+========================= */
+
+function goHome() {
+
+    window.location.href =
+        "./home.html";
+
+}
+
+
+/* =========================
+   啟動
+========================= */
+
+renderQuestions();
+
+</script>
+
+</body>
+</html>

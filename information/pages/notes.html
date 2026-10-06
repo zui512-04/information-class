@@ -1,0 +1,1522 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+
+<meta name="viewport"
+      content="width=device-width,
+               initial-scale=1.0,
+               maximum-scale=1.0,
+               user-scalable=no">
+
+<title>便利貼｜資訊系談心閣</title>
+
+<style>
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Microsoft JhengHei",
+        "Noto Sans TC",
+        sans-serif;
+
+    background:
+        linear-gradient(
+            135deg,
+            #eef4ff,
+            #f8f2ff,
+            #fff7fb
+        );
+
+    color: #303a51;
+
+    min-height: 100vh;
+}
+
+
+/* =========================
+   導覽列
+========================= */
+
+.navbar {
+
+    height: 68px;
+
+    background:
+        rgba(255,255,255,0.94);
+
+    backdrop-filter:
+        blur(18px);
+
+    border-bottom:
+        1px solid rgba(120,140,180,0.15);
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    padding: 0 5%;
+
+    position: sticky;
+
+    top: 0;
+
+    z-index: 20;
+}
+
+
+.logo-area {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 11px;
+}
+
+
+.logo {
+
+    width: 42px;
+    height: 42px;
+
+    border-radius: 13px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #789aff,
+            #887be8
+        );
+
+    color: white;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    font-weight: 800;
+
+    box-shadow:
+        0 8px 20px
+        rgba(100,120,220,0.25);
+}
+
+
+.logo-title {
+
+    font-size: 16px;
+
+    font-weight: 800;
+}
+
+
+.logo-sub {
+
+    font-size: 10px;
+
+    color: #929bad;
+
+    margin-top: 2px;
+}
+
+
+.back-btn {
+
+    border: none;
+
+    background: #f0f3fa;
+
+    color: #68738a;
+
+    padding: 9px 14px;
+
+    border-radius: 11px;
+
+    cursor: pointer;
+
+    transition: 0.2s;
+}
+
+
+.back-btn:hover {
+
+    background: #e5e9f3;
+}
+
+
+/* =========================
+   主體
+========================= */
+
+.container {
+
+    width: min(1100px, 92%);
+
+    margin: 30px auto 60px;
+}
+
+
+/* =========================
+   標題
+========================= */
+
+.hero {
+
+    background:
+        linear-gradient(
+            135deg,
+            #789aff,
+            #887be8
+        );
+
+    color: white;
+
+    padding: 30px;
+
+    border-radius: 23px;
+
+    margin-bottom: 20px;
+
+    box-shadow:
+        0 14px 35px
+        rgba(100,120,220,0.2);
+}
+
+
+.hero h1 {
+
+    font-size: 25px;
+
+    margin-bottom: 8px;
+}
+
+
+.hero p {
+
+    font-size: 13px;
+
+    opacity: 0.9;
+
+    line-height: 1.7;
+}
+
+
+/* =========================
+   新增便利貼
+========================= */
+
+.create-box {
+
+    background: white;
+
+    border-radius: 20px;
+
+    padding: 23px;
+
+    margin-bottom: 25px;
+
+    border:
+        1px solid
+        rgba(120,140,180,0.12);
+
+    box-shadow:
+        0 6px 22px
+        rgba(60,80,130,0.05);
+}
+
+
+.section-title {
+
+    font-size: 16px;
+
+    font-weight: 800;
+
+    margin-bottom: 15px;
+}
+
+
+textarea {
+
+    width: 100%;
+
+    height: 110px;
+
+    resize: vertical;
+
+    border:
+        1px solid #e3e7ef;
+
+    background: #f9faff;
+
+    border-radius: 13px;
+
+    padding: 13px;
+
+    font-family: inherit;
+
+    color: #303a51;
+
+    outline: none;
+
+    line-height: 1.7;
+
+    transition: 0.2s;
+}
+
+
+textarea:focus {
+
+    border-color: #819bf0;
+
+    background: white;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(120,150,240,0.1);
+}
+
+
+.bottom-row {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 15px;
+
+    margin-top: 13px;
+}
+
+
+.colors {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+}
+
+
+.color-label {
+
+    font-size: 11px;
+
+    color: #929bad;
+
+    margin-right: 3px;
+}
+
+
+.color {
+
+    width: 25px;
+
+    height: 25px;
+
+    border-radius: 50%;
+
+    border: 3px solid white;
+
+    outline: 1px solid #dce1eb;
+
+    cursor: pointer;
+
+    transition: 0.2s;
+}
+
+
+.color:hover {
+
+    transform: scale(1.12);
+}
+
+
+.color.selected {
+
+    outline:
+        2px solid #687fe0;
+
+    transform: scale(1.1);
+}
+
+
+.color-yellow {
+    background: #fff2a8;
+}
+
+.color-blue {
+    background: #cce6ff;
+}
+
+.color-pink {
+    background: #ffd1e3;
+}
+
+.color-green {
+    background: #d2f1d4;
+}
+
+.color-purple {
+    background: #ded2ff;
+}
+
+
+.publish-btn {
+
+    border: none;
+
+    background:
+        linear-gradient(
+            135deg,
+            #789aff,
+            #887be8
+        );
+
+    color: white;
+
+    padding: 11px 21px;
+
+    border-radius: 12px;
+
+    cursor: pointer;
+
+    font-weight: 700;
+
+    box-shadow:
+        0 7px 15px
+        rgba(100,120,220,0.2);
+}
+
+
+.notice {
+
+    background: #f4f6fb;
+
+    border-radius: 11px;
+
+    padding: 11px;
+
+    color: #7e889b;
+
+    font-size: 11px;
+
+    line-height: 1.6;
+
+    margin-top: 13px;
+}
+
+
+/* =========================
+   便利貼牆
+========================= */
+
+.wall-title {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    margin-bottom: 15px;
+}
+
+
+.wall-title h2 {
+
+    font-size: 17px;
+}
+
+
+.wall-title span {
+
+    font-size: 11px;
+
+    color: #9aa3b4;
+}
+
+
+.notes-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, minmax(0,1fr));
+
+    gap: 17px;
+
+    align-items: start;
+}
+
+
+/* =========================
+   便利貼
+========================= */
+
+.note {
+
+    position: relative;
+
+    min-height: 190px;
+
+    padding: 20px 18px 17px;
+
+    border-radius: 4px;
+
+    box-shadow:
+        0 8px 20px
+        rgba(70,80,110,0.10);
+
+    transform:
+        rotate(var(--rotate));
+
+    transition:
+        transform 0.2s,
+        box-shadow 0.2s;
+}
+
+
+.note:hover {
+
+    transform:
+        rotate(0deg)
+        translateY(-4px);
+
+    box-shadow:
+        0 14px 28px
+        rgba(70,80,110,0.16);
+}
+
+
+.note::before {
+
+    content: "";
+
+    position: absolute;
+
+    top: 0;
+
+    left: 50%;
+
+    transform:
+        translateX(-50%);
+
+    width: 65px;
+
+    height: 7px;
+
+    background:
+        rgba(255,255,255,0.55);
+
+    border-radius:
+        0 0 5px 5px;
+}
+
+
+.note-content {
+
+    font-size: 14px;
+
+    line-height: 1.8;
+
+    color: #555d6e;
+
+    white-space: pre-wrap;
+
+    word-break: break-word;
+
+    min-height: 105px;
+}
+
+
+.note-footer {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    border-top:
+        1px solid
+        rgba(80,90,110,0.1);
+
+    padding-top: 9px;
+
+    margin-top: 12px;
+
+    font-size: 10px;
+
+    color: #7d8491;
+}
+
+
+.delete-btn {
+
+    border: none;
+
+    background:
+        rgba(255,255,255,0.55);
+
+    color: #777;
+
+    padding: 5px 8px;
+
+    border-radius: 7px;
+
+    cursor: pointer;
+
+    font-size: 10px;
+}
+
+
+.delete-btn:hover {
+
+    background:
+        rgba(255,255,255,0.8);
+
+    color: #d85b6b;
+}
+
+
+/* 顏色 */
+
+.note-yellow {
+    background: #fff3aa;
+}
+
+.note-blue {
+    background: #cde8ff;
+}
+
+.note-pink {
+    background: #ffd3e4;
+}
+
+.note-green {
+    background: #d5f1d6;
+}
+
+.note-purple {
+    background: #ded3ff;
+}
+
+
+/* =========================
+   空狀態
+========================= */
+
+.empty {
+
+    grid-column:
+        1 / -1;
+
+    background: white;
+
+    border-radius: 20px;
+
+    padding: 55px 20px;
+
+    text-align: center;
+
+    color: #9aa3b4;
+}
+
+
+.empty-icon {
+
+    font-size: 42px;
+
+    margin-bottom: 10px;
+}
+
+
+/* =========================
+   手機
+========================= */
+
+@media(max-width:850px) {
+
+    .notes-grid {
+
+        grid-template-columns:
+            repeat(2, minmax(0,1fr));
+
+    }
+
+}
+
+
+@media(max-width:560px) {
+
+    .navbar {
+
+        padding: 0 4%;
+
+    }
+
+
+    .logo-sub {
+
+        display: none;
+
+    }
+
+
+    .container {
+
+        width: 94%;
+
+        margin-top: 18px;
+
+    }
+
+
+    .hero {
+
+        padding: 24px;
+
+    }
+
+
+    .hero h1 {
+
+        font-size: 21px;
+
+    }
+
+
+    .bottom-row {
+
+        flex-direction: column;
+
+        align-items: stretch;
+
+    }
+
+
+    .colors {
+
+        justify-content: center;
+
+    }
+
+
+    .publish-btn {
+
+        width: 100%;
+
+    }
+
+
+    .notes-grid {
+
+        grid-template-columns: 1fr;
+
+    }
+
+}
+
+</style>
+</head>
+
+
+<body>
+
+
+<header class="navbar">
+
+    <div class="logo-area">
+
+        <div class="logo">
+            📌
+        </div>
+
+        <div>
+
+            <div class="logo-title">
+                資訊系談心閣
+            </div>
+
+            <div class="logo-sub">
+                便利貼牆
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <button
+        class="back-btn"
+        onclick="goHome()">
+
+        ← 回首頁
+
+    </button>
+
+</header>
+
+
+
+<main class="container">
+
+
+    <section class="hero">
+
+        <h1>
+            📌 便利貼牆
+        </h1>
+
+        <p>
+            留下一句話、一個想法，或者只是今天突然想說的事情。
+            讓這面牆成為資訊系的小小留言板。
+        </p>
+
+    </section>
+
+
+
+    <!-- =====================
+         發布便利貼
+    ====================== -->
+
+    <section class="create-box">
+
+        <div class="section-title">
+            留下一張便利貼
+        </div>
+
+
+        <textarea
+            id="noteContent"
+            maxlength="300"
+            placeholder="今天想留下什麼？"></textarea>
+
+
+        <div class="bottom-row">
+
+
+            <div class="colors">
+
+                <span class="color-label">
+                    顏色
+                </span>
+
+
+                <button
+                    class="color color-yellow selected"
+                    data-color="yellow"
+                    onclick="selectColor(this)">
+                </button>
+
+
+                <button
+                    class="color color-blue"
+                    data-color="blue"
+                    onclick="selectColor(this)">
+                </button>
+
+
+                <button
+                    class="color color-pink"
+                    data-color="pink"
+                    onclick="selectColor(this)">
+                </button>
+
+
+                <button
+                    class="color color-green"
+                    data-color="green"
+                    onclick="selectColor(this)">
+                </button>
+
+
+                <button
+                    class="color color-purple"
+                    data-color="purple"
+                    onclick="selectColor(this)">
+                </button>
+
+            </div>
+
+
+            <button
+                class="publish-btn"
+                onclick="createNote()">
+
+                ＋ 貼上便利貼
+
+            </button>
+
+        </div>
+
+
+        <div class="notice">
+
+            💡 每張便利貼最多 300 字。
+            目前資料暫存在此瀏覽器中。
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =====================
+         便利貼牆
+    ====================== -->
+
+    <section>
+
+        <div class="wall-title">
+
+            <h2>
+                大家的便利貼
+            </h2>
+
+            <span id="noteCount">
+                0 張
+            </span>
+
+        </div>
+
+
+        <div
+            class="notes-grid"
+            id="notesGrid">
+
+        </div>
+
+    </section>
+
+
+</main>
+
+
+
+<script>
+
+/* =========================
+   使用者
+========================= */
+
+const loginUser =
+    sessionStorage.getItem("loginUser")
+    || "student";
+
+
+/* =========================
+   儲存名稱
+========================= */
+
+const STORAGE_KEY =
+    "talkingHallNotes";
+
+
+/* =========================
+   目前顏色
+========================= */
+
+let selectedColor =
+    "yellow";
+
+
+/* =========================
+   取得便利貼
+========================= */
+
+function getNotes() {
+
+    try {
+
+        const data =
+            localStorage.getItem(
+                STORAGE_KEY
+            );
+
+        if (!data) {
+            return [];
+        }
+
+
+        const notes =
+            JSON.parse(data);
+
+
+        if (!Array.isArray(notes)) {
+            return [];
+        }
+
+
+        return notes;
+
+    } catch(error) {
+
+        console.error(
+            "讀取便利貼失敗:",
+            error
+        );
+
+        return [];
+
+    }
+
+}
+
+
+/* =========================
+   選擇顏色
+========================= */
+
+function selectColor(button) {
+
+    document
+        .querySelectorAll(".color")
+        .forEach(function(item) {
+
+            item.classList.remove(
+                "selected"
+            );
+
+        });
+
+
+    button.classList.add(
+        "selected"
+    );
+
+
+    selectedColor =
+        button.dataset.color;
+
+}
+
+
+/* =========================
+   時間
+========================= */
+
+function formatTime(dateString) {
+
+    const date =
+        new Date(dateString);
+
+    const now =
+        new Date();
+
+    const diff =
+        now.getTime()
+        -
+        date.getTime();
+
+
+    const minute =
+        60 * 1000;
+
+    const hour =
+        60 * minute;
+
+    const day =
+        24 * hour;
+
+
+    if (diff < minute) {
+
+        return "剛剛";
+
+    }
+
+
+    if (diff < hour) {
+
+        return (
+            Math.floor(
+                diff / minute
+            )
+            +
+            " 分鐘前"
+        );
+
+    }
+
+
+    if (diff < day) {
+
+        return (
+            Math.floor(
+                diff / hour
+            )
+            +
+            " 小時前"
+        );
+
+    }
+
+
+    if (diff < day * 7) {
+
+        return (
+            Math.floor(
+                diff / day
+            )
+            +
+            " 天前"
+        );
+
+    }
+
+
+    return (
+        date.getFullYear()
+        +
+        "/"
+        +
+        String(
+            date.getMonth() + 1
+        ).padStart(2, "0")
+        +
+        "/"
+        +
+        String(
+            date.getDate()
+        ).padStart(2, "0")
+    );
+
+}
+
+
+/* =========================
+   建立便利貼
+========================= */
+
+function createNote() {
+
+    const textarea =
+        document.getElementById(
+            "noteContent"
+        );
+
+
+    const content =
+        textarea.value.trim();
+
+
+    if (content.length === 0) {
+
+        alert(
+            "請先輸入便利貼內容。"
+        );
+
+        textarea.focus();
+
+        return;
+
+    }
+
+
+    if (content.length > 300) {
+
+        alert(
+            "便利貼最多只能有 300 個字。"
+        );
+
+        return;
+
+    }
+
+
+    const note = {
+
+        id:
+            Date.now().toString(),
+
+        content:
+            content,
+
+        author:
+            loginUser,
+
+        color:
+            selectedColor,
+
+        createdAt:
+            new Date().toISOString()
+
+    };
+
+
+    const notes =
+        getNotes();
+
+
+    notes.unshift(note);
+
+
+    localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify(notes)
+    );
+
+
+    textarea.value = "";
+
+
+    renderNotes();
+
+}
+
+
+/* =========================
+   刪除便利貼
+========================= */
+
+function deleteNote(id) {
+
+    const notes =
+        getNotes();
+
+
+    const target =
+        notes.find(function(note) {
+
+            return String(note.id)
+                ===
+                String(id);
+
+        });
+
+
+    if (!target) {
+        return;
+    }
+
+
+    /*
+       只有建立者可以刪除自己的便利貼
+    */
+
+    if (
+        target.author !== loginUser
+    ) {
+
+        alert(
+            "只能刪除自己發布的便利貼。"
+        );
+
+        return;
+
+    }
+
+
+    const confirmed =
+        confirm(
+            "確定要刪除這張便利貼嗎？"
+        );
+
+
+    if (!confirmed) {
+        return;
+    }
+
+
+    const newNotes =
+        notes.filter(function(note) {
+
+            return String(note.id)
+                !==
+                String(id);
+
+        });
+
+
+    localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify(newNotes)
+    );
+
+
+    renderNotes();
+
+}
+
+
+/* =========================
+   顯示便利貼
+========================= */
+
+function renderNotes() {
+
+    const grid =
+        document.getElementById(
+            "notesGrid"
+        );
+
+
+    grid.innerHTML = "";
+
+
+    const notes =
+        getNotes();
+
+
+    document.getElementById(
+        "noteCount"
+    ).textContent =
+        notes.length + " 張";
+
+
+    if (notes.length === 0) {
+
+        grid.innerHTML = `
+
+            <div class="empty">
+
+                <div class="empty-icon">
+                    📌
+                </div>
+
+                <div>
+                    目前還沒有便利貼
+                </div>
+
+                <div
+                    style="
+                        margin-top:6px;
+                        font-size:11px;
+                    ">
+
+                    成為第一個留下便利貼的人吧！
+
+                </div>
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    notes.forEach(function(note, index) {
+
+        const article =
+            document.createElement(
+                "article"
+            );
+
+
+        article.className =
+            "note note-"
+            +
+            (
+                note.color
+                || "yellow"
+            );
+
+
+        /*
+           讓便利貼有些微不同角度
+        */
+
+        const rotations =
+            [
+                "-1deg",
+                "1deg",
+                "-0.5deg",
+                "0.8deg",
+                "-1.2deg"
+            ];
+
+
+        article.style.setProperty(
+            "--rotate",
+            rotations[
+                index % rotations.length
+            ]
+        );
+
+
+        const content =
+            document.createElement(
+                "div"
+            );
+
+
+        content.className =
+            "note-content";
+
+
+        /*
+           重要：
+           使用 textContent，
+           不讓輸入內容直接變成 HTML
+        */
+
+        content.textContent =
+            note.content;
+
+
+        const footer =
+            document.createElement(
+                "div"
+            );
+
+
+        footer.className =
+            "note-footer";
+
+
+        const author =
+            document.createElement(
+                "span"
+            );
+
+
+        author.textContent =
+            "👤 "
+            +
+            (
+                note.author
+                || "匿名使用者"
+            );
+
+
+        const right =
+            document.createElement(
+                "div"
+            );
+
+
+        right.style.display =
+            "flex";
+
+
+        right.style.alignItems =
+            "center";
+
+
+        right.style.gap =
+            "6px";
+
+
+        const time =
+            document.createElement(
+                "span"
+            );
+
+
+        time.textContent =
+            formatTime(
+                note.createdAt
+            );
+
+
+        right.appendChild(time);
+
+
+        /*
+           只有自己的便利貼
+           顯示刪除按鈕
+        */
+
+        if (
+            note.author === loginUser
+        ) {
+
+            const deleteButton =
+                document.createElement(
+                    "button"
+                );
+
+
+            deleteButton.className =
+                "delete-btn";
+
+
+            deleteButton.textContent =
+                "刪除";
+
+
+            deleteButton.onclick =
+                function() {
+
+                    deleteNote(
+                        note.id
+                    );
+
+                };
+
+
+            right.appendChild(
+                deleteButton
+            );
+
+        }
+
+
+        footer.appendChild(
+            author
+        );
+
+        footer.appendChild(
+            right
+        );
+
+
+        article.appendChild(
+            content
+        );
+
+        article.appendChild(
+            footer
+        );
+
+
+        grid.appendChild(
+            article
+        );
+
+    });
+
+}
+
+
+/* =========================
+   回首頁
+========================= */
+
+function goHome() {
+
+    window.location.href =
+        "./home.html";
+
+}
+
+
+/* =========================
+   啟動
+========================= */
+
+renderNotes();
+
+</script>
+
+</body>
+</html>
