@@ -692,6 +692,7 @@
 
                 batch.set(doc(db, "users", createdUser.uid), {
                     username: username,
+                    role: "user",
                     createdAt: serverTimestamp()
                 });
 
