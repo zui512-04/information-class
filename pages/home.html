@@ -85,7 +85,47 @@ function openComposer(type="note"){
  });
 }
 function readableError(error){if(error?.code==="permission-denied")return "資料庫拒絕這次操作，請確認已更新 Firestore 安全規則。";if(error?.code==="unavailable")return "目前連線不穩，請稍後再試。";return error?.message||"操作失敗，請稍後再試。"}
-async function loadPosts(){const list=$("#feedList");list.innerHTML='<div class="loading">正在更新內容…</div>';try{const snap=await getDocs(query(collection(db,"posts"),orderBy("createdAt","desc"),limit(80)));posts=snap.docs.map(d=>({id:d.id,...d.data()}));liked.clear();if(currentUser){await Promise.all(posts.map(async p=>{try{const likeSnap=await getDoc(doc(db,"posts",p.id,"likes",currentUser.uid));if(likeSnap.exists())liked.add(p.id)}catch(e){console.warn("讀取按讚狀態失敗",e)}}))}renderPosts()}catch(err){console.error(err);list.innerHTML=`<div class="empty"><div class="big">☁️</div><strong>暫時無法載入內容</strong><span>${esc(readableError(err))}</span><p style="margin-top:10))}if(activeFilter==="mine"){await showMine()}else{renderPosts()}}catch(err)px">請確認 Firebase 已啟用 Firestore，並發布本頁附上的安全規則。</p></div>`}}
+async function loadPosts(){
+  const list = $("#feedList");
+  list.innerHTML = '<div class="loading">正在更新內容…</div>';
+
+  try {
+    const snap = await getDocs(
+      query(collection(db, "posts"), orderBy("createdAt", "desc"), limit(80))
+    );
+
+    // Refresh the public feed first; personal posts are loaded separately when that view is active.
+    posts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    liked.clear();
+
+    if (currentUser) {
+      await Promise.all(posts.map(async post => {
+        try {
+          const likeSnap = await getDoc(doc(db, "posts", post.id, "likes", currentUser.uid));
+          if (likeSnap.exists()) liked.add(post.id);
+        } catch (error) {
+          console.warn("讀取按讚狀態失敗", error);
+        }
+      }));
+    }
+
+    if (activeFilter === "mine") {
+      await showMine();
+    } else {
+      renderPosts();
+    }
+  } catch (error) {
+    console.error("載入交流內容失敗：", error);
+    list.innerHTML = `<div class="empty">
+      <div class="big">☁️</div>
+      <strong>暫時無法載入內容</strong>
+      <span>${esc(readableError(error))}</span>
+      <p style="margin-top:10px">請稍後重試；若持續發生，請確認 Firestore 設定與安全規則。</p>
+      <button class="btn" id="retryLoadPosts" type="button" style="margin-top:12px">重新載入</button>
+    </div>`;
+    $("#retryLoadPosts")?.addEventListener("click", loadPosts);
+  }
+}
 function renderPosts(){
  const list=$("#feedList");
  let shown=activeFilter==="mine"?posts.filter(p=>p._mine===true):posts.filter(p=>activeFilter==="all"||p.type===activeFilter);
