@@ -656,7 +656,50 @@
 
         }
 
-    </style>
+    
+/* Shared談心閣 theme and accessibility. */
+body{
+  background:
+    radial-gradient(circle at 12% 8%,rgba(93,120,102,.10),transparent 32%),
+    radial-gradient(circle at 92% 88%,rgba(177,197,174,.18),transparent 36%),
+    #f6f5ef;
+  color:#242a27;
+}
+.navbar{background:rgba(246,245,239,.92);border-bottom:1px solid #e2e6dc;color:#242a27}
+.brand-icon{background:linear-gradient(135deg,#5d7866,#3f5d49)}
+.brand-name{color:#242a27}
+.admin-badge{background:#fff1b9;color:#6c5822}
+.nav-button{background:#fffefa;color:#3f5d49;border:1px solid #e0e5dc}
+.nav-button:hover{background:#e7eee6;color:#294b32}
+.page-header p,.stat-label,.section-subtitle{color:#777e78}
+.stat-card,.section{background:rgba(255,254,250,.96);border:1px solid #e4e7dd;box-shadow:0 8px 24px rgba(40,48,39,.045)}
+.stat-value,.section-title{color:#242a27}
+table{color:#303830}
+th{background:#edf2eb!important;color:#435747!important}
+td{border-color:#e7e8df!important}
+tbody tr:hover{background:#f8faf5}
+input,textarea,select{background:#fffefa!important;color:#242a27!important;border-color:#dfe5db!important}
+input:focus,textarea:focus,select:focus{outline:0;border-color:#7f9b83!important;box-shadow:0 0 0 3px rgba(93,120,102,.12)}
+.security-box{background:#eef2e9!important;border-color:#dce5d8!important;color:#435747!important}
+.toast{background:#3f5d49!important;color:#fff!important}
+:where(a,button,input,textarea,select):focus-visible{outline:3px solid #8aa68e;outline-offset:3px}
+.table-wrap{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+@media(max-width:600px){
+  .navbar{gap:8px;flex-wrap:wrap;min-height:68px;height:auto;padding-top:10px;padding-bottom:10px}
+  .nav-actions{gap:6px}
+  .nav-button{padding:8px 10px;font-size:12px}
+  .container{width:calc(100% - 24px)}
+  .section{padding:15px}
+  .section-header{align-items:flex-start;flex-wrap:wrap}
+  .stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .stat-card{min-width:0}
+  table{min-width:680px}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important;animation-iteration-count:1!important}
+}
+
+</style>
 
 </head>
 
@@ -902,7 +945,7 @@
                     </div>
 
                     <div class="section-subtitle">
-                        目前 Demo 帳號
+                        Firestore 會員資料
                     </div>
 
                 </div>
@@ -934,7 +977,7 @@
                     </div>
 
                     <div class="section-subtitle">
-                        查看最近的登入成功與失敗
+                        登入紀錄尚未接入，不顯示虛構資料
                     </div>
 
                 </div>
@@ -1003,9 +1046,8 @@
 
                 <br>
 
-                <strong>重要：</strong>本頁的統計、操作紀錄與部分管理列表仍是
-                <strong>localStorage 前端示範資料</strong>，尚未連接正式 Firestore 管理資料；
-                清除瀏覽器資料可能會使示範內容消失，也不會真正封鎖或刪除網站上的資料。
+                <strong>目前登入成功／失敗紀錄尚未接入正式紀錄來源，因此本頁不會顯示虛構的登入紀錄。
+                檢舉、文章、會員與管理員操作紀錄會依 Firestore 權限讀取；發布最新 Firestore Rules 後，仍需驗收各項管理操作。
 
                 <br>
 

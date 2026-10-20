@@ -359,7 +359,80 @@
                 transition: none !important;
             }
         }
-    </style>
+    
+/* Shared談心閣 visual system: warm paper, sage green, readable contrast. */
+:root{
+  color-scheme:light;
+  --bg:#f6f5ef;
+  --panel:rgba(255,254,250,.96);
+  --purple:#5d7866;
+  --purple-light:#3f5d49;
+  --text:#242a27;
+  --muted:#777e78;
+  --border:rgba(93,120,102,.18);
+}
+body{
+  color:var(--text);
+  background:
+    radial-gradient(ellipse at 12% 12%,rgba(93,120,102,.13),transparent 40%),
+    radial-gradient(ellipse at 90% 88%,rgba(177,197,174,.22),transparent 40%),
+    linear-gradient(135deg,#f6f5ef,#f0f3eb 55%,#f8f6ef);
+}
+body::before{background:#91ad91;opacity:.14}
+body::after{background:#c2d4b9;opacity:.2}
+.brand-icon{
+  border-color:rgba(93,120,102,.24);
+  background:linear-gradient(145deg,rgba(93,120,102,.16),rgba(232,239,229,.65));
+  box-shadow:0 12px 40px rgba(63,93,73,.10);
+}
+.brand p{color:#737c72}
+.card{
+  border-color:rgba(93,120,102,.18);
+  background:rgba(255,254,250,.9);
+  box-shadow:0 25px 80px rgba(45,58,43,.10);
+}
+.card-heading p{color:#737c72}
+.mode-switch{border-color:#e2e6dc;background:#f0f2eb}
+.mode-button{color:#777e78}
+.mode-button.active{
+  color:#fff;
+  background:linear-gradient(135deg,#5d7866,#3f5d49);
+  box-shadow:0 5px 16px rgba(63,93,73,.16);
+}
+label{color:#465449}
+input{
+  border-color:#e0e5dc;
+  background:#fffefa;
+  color:#242a27;
+}
+input::placeholder{color:#9aa197}
+input:focus{border-color:#7f9b83;box-shadow:0 0 0 3px rgba(93,120,102,.13)}
+.password-toggle{color:#657568}
+.password-toggle:hover{background:#edf2eb;color:#3f5d49}
+.field-hint{color:#818b80}
+.login-button{
+  background:linear-gradient(110deg,#5d7866,#3f5d49);
+  box-shadow:0 9px 24px rgba(63,93,73,.17);
+}
+.login-button:hover:not(:disabled){filter:brightness(1.06)}
+.secondary-action{color:#3f6b4a}
+.secondary-action:hover{color:#294b32}
+.security-info{
+  border-color:rgba(93,120,102,.14);
+  background:rgba(93,120,102,.06);
+  color:#657368;
+}
+.footer{color:#818a80}
+:where(a,button,input,textarea,select):focus-visible{outline:3px solid #8aa68e;outline-offset:3px}
+@media(max-width:480px){
+  .brand{margin-bottom:20px}
+  .card{padding:24px 20px}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important;animation-iteration-count:1!important}
+}
+
+</style>
 </head>
 
 <body>
