@@ -270,6 +270,29 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    // Login event log: front-end writes are intentionally enabled for the no-cost demo.
+    // This is not tamper-proof; read access remains restricted to admins.
+    match /loginLogs/{logId} {
+      allow read: if isAdmin();
+
+      allow create: if (signedIn() || request.auth == null)
+        && request.resource.data.keys().hasOnly([
+          'uid', 'email', 'outcome', 'reason', 'createdAt'
+        ])
+        && request.resource.data.uid is string
+        && request.resource.data.uid.size() <= 128
+        && request.resource.data.email is string
+        && request.resource.data.email.size() <= 254
+        && request.resource.data.outcome in [
+          'success', 'failed', 'verification_required', 'profile_missing'
+        ]
+        && request.resource.data.reason is string
+        && request.resource.data.reason.size() <= 100
+        && request.resource.data.createdAt == request.time;
+
+      allow update, delete: if false;
+    }
+
     match /adminLogs/{logId} {
       allow read: if isAdmin();
 
