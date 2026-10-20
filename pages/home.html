@@ -85,7 +85,47 @@ function openComposer(type="note"){
  });
 }
 function readableError(error){if(error?.code==="permission-denied")return "資料庫拒絕這次操作，請確認已更新 Firestore 安全規則。";if(error?.code==="unavailable")return "目前連線不穩，請稍後再試。";return error?.message||"操作失敗，請稍後再試。"}
-async function loadPosts(){const list=$("#feedList");list.innerHTML='<div class="loading">正在更新內容…</div>';try{const snap=await getDocs(query(collection(db,"posts"),orderBy("createdAt","desc"),limit(80)));posts=snap.docs.map(d=>({id:d.id,...d.data()}));liked.clear();if(currentUser){await Promise.all(posts.map(async p=>{try{const likeSnap=await getDoc(doc(db,"posts",p.id,"likes",currentUser.uid));if(likeSnap.exists())liked.add(p.id)}catch(e){console.warn("讀取按讚狀態失敗",e)}}))}renderPosts()}catch(err){console.error(err);list.innerHTML=`<div class="empty"><div class="big">☁️</div><strong>暫時無法載入內容</strong><span>${esc(readableError(err))}</span><p style="margin-top:10))}if(activeFilter==="mine"){await showMine()}else{renderPosts()}}catch(err)px">請確認 Firebase 已啟用 Firestore，並發布本頁附上的安全規則。</p></div>`}}
+async function loadPosts(){
+  const list = $("#feedList");
+  list.innerHTML = '<div class="loading">正在更新內容…</div>';
+
+  try {
+    const snap = await getDocs(
+      query(collection(db, "posts"), orderBy("createdAt", "desc"), limit(80))
+    );
+
+    // Refresh the public feed first; personal posts are loaded separately when that view is active.
+    posts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    liked.clear();
+
+    if (currentUser) {
+      await Promise.all(posts.map(async post => {
+        try {
+          const likeSnap = await getDoc(doc(db, "posts", post.id, "likes", currentUser.uid));
+          if (likeSnap.exists()) liked.add(post.id);
+        } catch (error) {
+          console.warn("讀取按讚狀態失敗", error);
+        }
+      }));
+    }
+
+    if (activeFilter === "mine") {
+      await showMine();
+    } else {
+      renderPosts();
+    }
+  } catch (error) {
+    console.error("載入交流內容失敗：", error);
+    list.innerHTML = `<div class="empty">
+      <div class="big">☁️</div>
+      <strong>暫時無法載入內容</strong>
+      <span>${esc(readableError(error))}</span>
+      <p style="margin-top:10px">請稍後重試；若持續發生，請確認 Firestore 設定與安全規則。</p>
+      <button class="btn" id="retryLoadPosts" type="button" style="margin-top:12px">重新載入</button>
+    </div>`;
+    $("#retryLoadPosts")?.addEventListener("click", loadPosts);
+  }
+}
 function renderPosts(){
  const list=$("#feedList");
  let shown=activeFilter==="mine"?posts.filter(p=>p._mine===true):posts.filter(p=>activeFilter==="all"||p.type===activeFilter);
@@ -130,14 +170,60 @@ if (!shown.length) {
   return;
 }
 
- list.innerHTML=shown.map(p=>{const type=TYPE[p.type]||TYPE.post;const isNote=p.type==="note";const isLiked=liked.has(p.id);const commentsOpen=openedComments.has(p.id);return `<article class="post ${isNote?"category-note":""}" data-post="${esc(p.id)}"><div class="post-top"><div class="type-icon ${esc(p.type)}">${type.icon}</div><div class="post-meta"><div class="post-author">${esc(getDisplayName(p))}</div><div class="post-date">${esc(formatDate(p.createdAt))}</div></div><span class="type-tag">${type.label}</span></div>${p.title?`<h3>${esc(p.title)}</h3>`:""}<div class="post-body">${esc(p.content||"")}</div><div class="post-footer"><button class="action ${isLiked?"liked":""}" data-like="${esc(p.id)}">${isLiked?"♥":"♡"} 按讚</button><button class="action" data-comments="${esc(p.id)}">▤ 留言${commentsOpen?"中":""}</button>${activeFilter==="mine"&&p._mine===true?`<button class="action" data-edit="${esc(p.id)}" type="button">✎ 編輯</button><button class="action delete-action" data-delete="${esc(p.id)}" type="button">🗑️ 刪除貼文</button>`:""}<span class="post-category"># ${esc(p.category||"日常")}</span></div>${commentsOpen?`<div class="comment-box" id="comments-${esc(p.id)}"><div class="loading">載入留言中…</div></div>`:""}</article>`}).join("");
- $$('[data-like]',list).forEach(b=>b.addEventListener("click",()=>toggleLike(b.dataset.like)));$$('[data-comments]',list).forEach(b=>b.addEventListener("click",()=>toggleComments(b.dataset.comments)));$$('[data-edit]',list).forEach(b=>b.addEventListener("click",()=>editPost(b.dataset.edit)));$$('[data-delete]',list).forEach(b=>b.addEventListener("click",()=>deletePost(b.dataset.delete)));
+ list.innerHTML=shown.map(p=>{const type=TYPE[p.type]||TYPE.post;const isNote=p.type==="note";const isLiked=liked.has(p.id);const commentsOpen=openedComments.has(p.id);return `<article class="post ${isNote?"category-note":""}" data-post="${esc(p.id)}"><div class="post-top"><div class="type-icon ${esc(p.type)}">${type.icon}</div><div class="post-meta"><div class="post-author">${esc(getDisplayName(p))}</div><div class="post-date">${esc(formatDate(p.createdAt))}</div></div><span class="type-tag">${type.label}</span></div>${p.title?`<h3>${esc(p.title)}</h3>`:""}<div class="post-body">${esc(p.content||"")}</div><div class="post-footer"><button class="action ${isLiked?"liked":""}" data-like="${esc(p.id)}">${isLiked?"♥":"♡"} 按讚</button><button class="action" data-comments="${esc(p.id)}">▤ 留言${commentsOpen?"中":""}</button><button class="action" data-report="${esc(p.id)}" type="button">⚑ 檢舉</button>${activeFilter==="mine"&&p._mine===true?`<button class="action" data-edit="${esc(p.id)}" type="button">✎ 編輯</button><button class="action delete-action" data-delete="${esc(p.id)}" type="button">🗑️ 刪除貼文</button>`:""}<span class="post-category"># ${esc(p.category||"日常")}</span></div>${commentsOpen?`<div class="comment-box" id="comments-${esc(p.id)}"><div class="loading">載入留言中…</div></div>`:""}</article>`}).join("");
+ $$('[data-like]',list).forEach(b=>b.addEventListener("click",()=>toggleLike(b.dataset.like)));$('[data-comments]',list).forEach(b=>b.addEventListener("click",()=>toggleComments(b.dataset.comments)));$('[data-report]',list).forEach(b=>b.addEventListener("click",()=>reportPost(b.dataset.report)));$$('[data-edit]',list).forEach(b=>b.addEventListener("click",()=>editPost(b.dataset.edit)));$$('[data-delete]',list).forEach(b=>b.addEventListener("click",()=>deletePost(b.dataset.delete)));
+}
+async function reportPost(postId){
+ if(!currentUser){showLoginHint();return}
+ const post=posts.find(p=>p.id===postId);
+ if(!post){toast("找不到這篇內容，請重新整理後再試。");return}
+ const reasons=["不當或攻擊性內容","騷擾或霸凌","個人資料／隱私","垃圾訊息或廣告","其他"];
+ const reason=prompt("請輸入檢舉原因：\n1. 不當或攻擊性內容\n2. 騷擾或霸凌\n3. 個人資料／隱私\n4. 垃圾訊息或廣告\n5. 其他","1");
+ if(reason===null)return;
+ const index=Number(reason.trim())-1;
+ if(!Number.isInteger(index)||index<0||index>=reasons.length){toast("請輸入 1 到 5 的檢舉原因。");return}
+ const details=prompt("補充說明（選填，最多 500 字）：","")||"";
+ if(details.length>500){toast("補充說明最多 500 字。");return}
+ const reportId=postId+"_"+currentUser.uid;
+ try{
+  await setDoc(doc(db,"reports",reportId),{postId,postTitle:String(post.title||"便利貼").slice(0,90),reporterUid:currentUser.uid,reporterName:String(profile?.username||"會員").slice(0,40),reason:reasons[index],details:details.trim(),status:"pending",createdAt:serverTimestamp()});
+  toast("檢舉已送出，管理員會進行確認。");
+ }catch(error){
+  if(error?.code==="already-exists"||error?.code==="permission-denied")toast("無法送出檢舉：可能已檢舉過這篇內容，或資料庫規則尚未更新。");
+  else toast(readableError(error));
+  console.error("送出檢舉失敗",error);
+ }
 }
 async function toggleLike(postId){if(!currentUser){showLoginHint();return}const ref=doc(db,"posts",postId,"likes",currentUser.uid);try{if(liked.has(postId)){await deleteDoc(ref);liked.delete(postId)}else{await setDoc(ref,{createdAt:serverTimestamp()});liked.add(postId)}renderPosts()}catch(err){toast(readableError(err))}}
 async function toggleComments(postId){if(openedComments.has(postId)){openedComments.delete(postId);renderPosts();return}openedComments.add(postId);renderPosts();await loadComments(postId)}
 async function loadComments(postId){const target=$(`#comments-${CSS.escape(postId)}`);if(!target)return;try{const snap=await getDocs(query(collection(db,"posts",postId,"comments"),orderBy("createdAt","asc"),limit(100)));const comments=snap.docs.map(d=>d.data());target.innerHTML=`<div class="comments">${comments.length?comments.map(c=>`<div class="comment"><strong>${esc(c.anonymous?"匿名使用者":(c.authorName||"談心閣同學"))} · ${esc(formatDate(c.createdAt))}</strong><p>${esc(c.content||"")}</p></div>`).join(""):'<div style="font-size:12px;color:#899087">還沒有留言，來當第一個回應的人吧。</div>'}</div><form class="comment-form" data-comment-form="${esc(postId)}"><input maxlength="1000" required placeholder="寫下友善的回應…"><label style="display:flex;align-items:center;gap:4px;font-size:11px;white-space:nowrap;color:#687168"><input type="checkbox" name="anonymous" style="accent-color:#5d7866">匿名</label><button type="submit">送出</button></form>`;const form=$(`[data-comment-form="${CSS.escape(postId)}"]`,target);form.addEventListener("submit",async e=>{e.preventDefault();if(!currentUser){showLoginHint();return}const input=$("input[maxlength='1000']",form);const content=input.value.trim();if(!content)return;const anon=$("input[name='anonymous']",form).checked;const btn=$("button[type='submit']",form);btn.disabled=true;try{await addDoc(collection(db,"posts",postId,"comments"),{content,anonymous:anon,authorName:anon?"":(profile?.username||"談心閣同學"),createdAt:serverTimestamp()});await loadComments(postId);toast("留言已送出！")}catch(err){toast(readableError(err))}finally{btn.disabled=false}})}catch(err){target.innerHTML=`<div class="comment">無法載入留言：${esc(readableError(err))}</div>`}}
 async function showMine(){if(!currentUser){showLoginHint();return}myOnly=true;activeFilter="mine";$("#feedTitle").textContent="我的內容";$("#feedSubtitle").textContent="只顯示自己發布的便利貼、提問與文章。";$$('#filters button').forEach(b=>b.classList.toggle("active",b.dataset.filter==="mine"));const list=$("#feedList");list.innerHTML='<div class="loading">正在載入你的內容…</div>';try{const snap=await getDocs(collection(db,"users",currentUser.uid,"myPosts"));const mineIds=new Set(snap.docs.map(d=>d.id));const mineDocs=await Promise.all(snap.docs.map(async indexDoc=>{try{const postSnap=await getDoc(doc(db,"posts",indexDoc.id));return postSnap.exists()?{id:postSnap.id,...postSnap.data(),_mine:true}:null}catch(e){console.warn("讀取個人貼文失敗",e);return null}}));const mine=mineDocs.filter(Boolean);const mineMap=new Map(mine.map(p=>[p.id,p]));posts=posts.filter(p=>!mineIds.has(p.id)).concat(mine).sort((a,b)=>{const at=a.createdAt?.toMillis?a.createdAt.toMillis():0;const bt=b.createdAt?.toMillis?b.createdAt.toMillis():0;return bt-at});renderPosts()}catch(e){console.error(e);list.innerHTML=`<div class="empty"><strong>無法載入你的內容</strong><span>${esc(readableError(e))}</span></div>`}}
-async function deletePost(postId){if(!currentUser){showLoginHint();return}const post=posts.find(p=>p.id===postId&&p._mine===true);if(!post||activeFilter!=="mine"){toast("只能刪除自己發布的內容。");return}if(!confirm("確定要刪除這篇貼文嗎？刪除後無法復原。"))return;try{const batch=writeBatch(db);batch.delete(doc(db,"posts",postId));batch.delete(doc(db,"postPrivate",postId));batch.delete(doc(db,"users",currentUser.uid,"myPosts",postId));await batch.commit();posts=posts.filter(p=>p.id!==postId);liked.delete(postId);openedComments.delete(postId);renderPosts();toast("貼文已刪除。")}catch(e){console.error("刪除貼文失敗：",e);toast(readableError(e))}}
+async function deletePost(postId){
+ if(!currentUser){showLoginHint();return}
+ const post=posts.find(p=>p.id===postId&&p._mine===true);
+ if(!post||activeFilter!=="mine"){toast("只能刪除自己發布的內容。");return}
+ if(!confirm("確定要刪除這篇貼文嗎？相關留言與按讚也會一起清除，且無法復原。"))return;
+ try{
+  for(const sub of ["likes","comments"]){
+   while(true){
+    const snap=await getDocs(query(collection(db,"posts",postId,sub),limit(400)));
+    if(snap.empty)break;
+    for(let i=0;i<snap.docs.length;i+=400){
+     const batch=writeBatch(db);
+     snap.docs.slice(i,i+400).forEach(d=>batch.delete(d.ref));
+     await batch.commit();
+    }
+   }
+  }
+  const batch=writeBatch(db);
+  batch.delete(doc(db,"posts",postId));
+  batch.delete(doc(db,"postPrivate",postId));
+  batch.delete(doc(db,"users",currentUser.uid,"myPosts",postId));
+  await batch.commit();
+  posts=posts.filter(p=>p.id!==postId);liked.delete(postId);openedComments.delete(postId);
+  renderPosts();toast("貼文及相關留言、按讚已刪除。");
+ }catch(e){console.error("刪除貼文失敗：",e);toast(readableError(e))}
+}
 async function editPost(postId) {
   if (!currentUser) { showLoginHint(); return; }
   const post = posts.find(p => p.id === postId && p._mine === true);
