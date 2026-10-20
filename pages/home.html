@@ -170,8 +170,29 @@ if (!shown.length) {
   return;
 }
 
- list.innerHTML=shown.map(p=>{const type=TYPE[p.type]||TYPE.post;const isNote=p.type==="note";const isLiked=liked.has(p.id);const commentsOpen=openedComments.has(p.id);return `<article class="post ${isNote?"category-note":""}" data-post="${esc(p.id)}"><div class="post-top"><div class="type-icon ${esc(p.type)}">${type.icon}</div><div class="post-meta"><div class="post-author">${esc(getDisplayName(p))}</div><div class="post-date">${esc(formatDate(p.createdAt))}</div></div><span class="type-tag">${type.label}</span></div>${p.title?`<h3>${esc(p.title)}</h3>`:""}<div class="post-body">${esc(p.content||"")}</div><div class="post-footer"><button class="action ${isLiked?"liked":""}" data-like="${esc(p.id)}">${isLiked?"♥":"♡"} 按讚</button><button class="action" data-comments="${esc(p.id)}">▤ 留言${commentsOpen?"中":""}</button>${activeFilter==="mine"&&p._mine===true?`<button class="action" data-edit="${esc(p.id)}" type="button">✎ 編輯</button><button class="action delete-action" data-delete="${esc(p.id)}" type="button">🗑️ 刪除貼文</button>`:""}<span class="post-category"># ${esc(p.category||"日常")}</span></div>${commentsOpen?`<div class="comment-box" id="comments-${esc(p.id)}"><div class="loading">載入留言中…</div></div>`:""}</article>`}).join("");
- $$('[data-like]',list).forEach(b=>b.addEventListener("click",()=>toggleLike(b.dataset.like)));$$('[data-comments]',list).forEach(b=>b.addEventListener("click",()=>toggleComments(b.dataset.comments)));$$('[data-edit]',list).forEach(b=>b.addEventListener("click",()=>editPost(b.dataset.edit)));$$('[data-delete]',list).forEach(b=>b.addEventListener("click",()=>deletePost(b.dataset.delete)));
+ list.innerHTML=shown.map(p=>{const type=TYPE[p.type]||TYPE.post;const isNote=p.type==="note";const isLiked=liked.has(p.id);const commentsOpen=openedComments.has(p.id);return `<article class="post ${isNote?"category-note":""}" data-post="${esc(p.id)}"><div class="post-top"><div class="type-icon ${esc(p.type)}">${type.icon}</div><div class="post-meta"><div class="post-author">${esc(getDisplayName(p))}</div><div class="post-date">${esc(formatDate(p.createdAt))}</div></div><span class="type-tag">${type.label}</span></div>${p.title?`<h3>${esc(p.title)}</h3>`:""}<div class="post-body">${esc(p.content||"")}</div><div class="post-footer"><button class="action ${isLiked?"liked":""}" data-like="${esc(p.id)}">${isLiked?"♥":"♡"} 按讚</button><button class="action" data-comments="${esc(p.id)}">▤ 留言${commentsOpen?"中":""}</button><button class="action" data-report="${esc(p.id)}" type="button">⚑ 檢舉</button>${activeFilter==="mine"&&p._mine===true?`<button class="action" data-edit="${esc(p.id)}" type="button">✎ 編輯</button><button class="action delete-action" data-delete="${esc(p.id)}" type="button">🗑️ 刪除貼文</button>`:""}<span class="post-category"># ${esc(p.category||"日常")}</span></div>${commentsOpen?`<div class="comment-box" id="comments-${esc(p.id)}"><div class="loading">載入留言中…</div></div>`:""}</article>`}).join("");
+ $$('[data-like]',list).forEach(b=>b.addEventListener("click",()=>toggleLike(b.dataset.like)));$('[data-comments]',list).forEach(b=>b.addEventListener("click",()=>toggleComments(b.dataset.comments)));$('[data-report]',list).forEach(b=>b.addEventListener("click",()=>reportPost(b.dataset.report)));$$('[data-edit]',list).forEach(b=>b.addEventListener("click",()=>editPost(b.dataset.edit)));$$('[data-delete]',list).forEach(b=>b.addEventListener("click",()=>deletePost(b.dataset.delete)));
+}
+async function reportPost(postId){
+ if(!currentUser){showLoginHint();return}
+ const post=posts.find(p=>p.id===postId);
+ if(!post){toast("找不到這篇內容，請重新整理後再試。");return}
+ const reasons=["不當或攻擊性內容","騷擾或霸凌","個人資料／隱私","垃圾訊息或廣告","其他"];
+ const reason=prompt("請輸入檢舉原因：\n1. 不當或攻擊性內容\n2. 騷擾或霸凌\n3. 個人資料／隱私\n4. 垃圾訊息或廣告\n5. 其他","1");
+ if(reason===null)return;
+ const index=Number(reason.trim())-1;
+ if(!Number.isInteger(index)||index<0||index>=reasons.length){toast("請輸入 1 到 5 的檢舉原因。");return}
+ const details=prompt("補充說明（選填，最多 500 字）：","")||"";
+ if(details.length>500){toast("補充說明最多 500 字。");return}
+ const reportId=postId+"_"+currentUser.uid;
+ try{
+  await setDoc(doc(db,"reports",reportId),{postId,postTitle:String(post.title||"便利貼").slice(0,90),reporterUid:currentUser.uid,reporterName:String(profile?.username||"會員").slice(0,40),reason:reasons[index],details:details.trim(),status:"pending",createdAt:serverTimestamp()});
+  toast("檢舉已送出，管理員會進行確認。");
+ }catch(error){
+  if(error?.code==="already-exists"||error?.code==="permission-denied")toast("無法送出檢舉：可能已檢舉過這篇內容，或資料庫規則尚未更新。");
+  else toast(readableError(error));
+  console.error("送出檢舉失敗",error);
+ }
 }
 async function toggleLike(postId){if(!currentUser){showLoginHint();return}const ref=doc(db,"posts",postId,"likes",currentUser.uid);try{if(liked.has(postId)){await deleteDoc(ref);liked.delete(postId)}else{await setDoc(ref,{createdAt:serverTimestamp()});liked.add(postId)}renderPosts()}catch(err){toast(readableError(err))}}
 async function toggleComments(postId){if(openedComments.has(postId)){openedComments.delete(postId);renderPosts();return}openedComments.add(postId);renderPosts();await loadComments(postId)}
