@@ -177,22 +177,52 @@ async function reportPost(postId){
  if(!currentUser){showLoginHint();return}
  const post=posts.find(p=>p.id===postId);
  if(!post){toast("找不到這篇內容，請重新整理後再試。");return}
+ const root=$("#modalRoot");
  const reasons=["不當或攻擊性內容","騷擾或霸凌","個人資料／隱私","垃圾訊息或廣告","其他"];
- const reason=prompt("請輸入檢舉原因：\n1. 不當或攻擊性內容\n2. 騷擾或霸凌\n3. 個人資料／隱私\n4. 垃圾訊息或廣告\n5. 其他","1");
- if(reason===null)return;
- const index=Number(reason.trim())-1;
- if(!Number.isInteger(index)||index<0||index>=reasons.length){toast("請輸入 1 到 5 的檢舉原因。");return}
- const details=prompt("補充說明（選填，最多 500 字）：","")||"";
- if(details.length>500){toast("補充說明最多 500 字。");return}
- const reportId=postId+"_"+currentUser.uid;
- try{
-  await setDoc(doc(db,"reports",reportId),{postId,postTitle:String(post.title||"便利貼").slice(0,90),reporterUid:currentUser.uid,reporterName:String(profile?.username||"會員").slice(0,40),reason:reasons[index],details:details.trim(),status:"pending",createdAt:serverTimestamp()});
-  toast("檢舉已送出，管理員會進行確認。");
- }catch(error){
-  if(error?.code==="already-exists"||error?.code==="permission-denied")toast("無法送出檢舉：可能已檢舉過這篇內容，或資料庫規則尚未更新。");
-  else toast(readableError(error));
-  console.error("送出檢舉失敗",error);
- }
+ root.innerHTML=`<div class="modal-backdrop" id="reportBackdrop"><section class="modal" role="dialog" aria-modal="true" aria-labelledby="reportTitle">
+  <div class="modal-head"><div><h2 id="reportTitle">檢舉這篇內容</h2><p>請選擇原因，管理員會再確認這則內容。</p></div><button class="icon-btn" id="closeReport" type="button" aria-label="關閉">×</button></div>
+  <form id="reportForm">
+   <div class="field"><label for="reportReason">檢舉原因</label><select id="reportReason" required><option value="">請選擇原因</option>${reasons.map(reason=>`<option value="${esc(reason)}">${esc(reason)}</option>`).join("")}</select></div>
+   <div class="field"><label for="reportDetails">補充說明（選填）</label><textarea id="reportDetails" maxlength="500" placeholder="請簡單描述問題所在，最多 500 字。" style="min-height:110px"></textarea><span class="hint">請勿在說明中放入自己的密碼或其他敏感資料。</span></div>
+   <div class="modal-actions"><button class="btn" id="cancelReport" type="button">取消</button><button class="btn primary" id="submitReport" type="submit">送出檢舉</button></div>
+  </form>
+ </section></div>`;
+ root.classList.remove("hidden");
+ const close=()=>{root.classList.add("hidden");root.innerHTML=""};
+ $("#closeReport",root).addEventListener("click",close);
+ $("#cancelReport",root).addEventListener("click",close);
+ $("#reportBackdrop",root).addEventListener("click",event=>{if(event.target.id==="reportBackdrop")close()});
+ $("#reportForm",root).addEventListener("submit",async event=>{
+  event.preventDefault();
+  const reason=$("#reportReason",root).value;
+  const details=$("#reportDetails",root).value.trim();
+  const button=$("#submitReport",root);
+  if(!reasons.includes(reason)){toast("請先選擇檢舉原因。");return}
+  if(details.length>500){toast("補充說明最多 500 字。");return}
+  const reportId=postId+"_"+currentUser.uid;
+  button.disabled=true;button.textContent="送出中…";
+  try{
+   await setDoc(doc(db,"reports",reportId),{
+    postId,
+    postTitle:String(post.title||"便利貼").slice(0,90),
+    reporterUid:currentUser.uid,
+    reporterName:String(profile?.username||"會員").slice(0,40),
+    reason,
+    details,
+    status:"pending",
+    createdAt:serverTimestamp()
+   });
+   close();toast("檢舉已送出，管理員會進行確認。");
+  }catch(error){
+   console.error("送出檢舉失敗",error);
+   if(error?.code==="permission-denied"){
+    toast("檢舉未送出：可能已檢舉過這篇內容，或 Firebase 規則尚未發布最新版本。");
+   }else{
+    toast(readableError(error));
+   }
+   button.disabled=false;button.textContent="送出檢舉";
+  }
+ });
 }
 async function toggleLike(postId){if(!currentUser){showLoginHint();return}const ref=doc(db,"posts",postId,"likes",currentUser.uid);try{if(liked.has(postId)){await deleteDoc(ref);liked.delete(postId)}else{await setDoc(ref,{createdAt:serverTimestamp()});liked.add(postId)}renderPosts()}catch(err){toast(readableError(err))}}
 async function toggleComments(postId){if(openedComments.has(postId)){openedComments.delete(postId);renderPosts();return}openedComments.add(postId);renderPosts();await loadComments(postId)}
