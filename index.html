@@ -586,6 +586,8 @@ input:focus{border-color:#7f9b83;box-shadow:0 0 0 3px rgba(93,120,102,.13)}
             getFirestore,
             doc,
             getDoc,
+            collection,
+            addDoc,
             writeBatch,
             serverTimestamp
         } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-firestore.js";
@@ -624,6 +626,22 @@ input:focus{border-color:#7f9b83;box-shadow:0 0 0 3px rgba(93,120,102,.13)}
 
         let currentMode = "login";
         let busy = false;
+
+        // 登入事件寫入 Firestore；紀錄失敗不影響正常登入流程。
+        // 注意：這是免後端的前端紀錄，僅供課堂展示，不是防偽稽核紀錄。
+        async function recordLoginEvent(email, outcome, reason = "", uid = "") {
+            try {
+                await addDoc(collection(db, "loginLogs"), {
+                    uid: String(uid || "").slice(0, 128),
+                    email: String(email || "").trim().toLowerCase().slice(0, 254),
+                    outcome: String(outcome || "unknown"),
+                    reason: String(reason || "").slice(0, 100),
+                    createdAt: serverTimestamp()
+                });
+            } catch (logError) {
+                console.warn("登入安全紀錄寫入失敗：", logError);
+            }
+        }
 
         function showMessage(message, type = "error") {
             errorMessage.textContent = message;
@@ -833,6 +851,7 @@ input:focus{border-color:#7f9b83;box-shadow:0 0 0 3px rgba(93,120,102,.13)}
                 const user = credential.user;
 
                 if (!user.emailVerified) {
+                    await recordLoginEvent(email, "verification_required", "auth/email-not-verified", user.uid);
                     await signOut(auth);
                     showMessage("電子郵件尚未驗證。請先查看信箱中的驗證信；如果沒有收到，可以重新寄送。");
                     resendVerificationButton.classList.remove("hidden");
@@ -842,12 +861,14 @@ input:focus{border-color:#7f9b83;box-shadow:0 0 0 3px rgba(93,120,102,.13)}
                 const profileSnapshot = await getDoc(doc(db, "users", user.uid));
 
                 if (!profileSnapshot.exists()) {
+                    await recordLoginEvent(email, "profile_missing", "profile/not-found", user.uid);
                     await signOut(auth);
                     showMessage("找不到你的個人資料，請聯絡網站管理員。");
                     return;
                 }
 
                 const profile = profileSnapshot.data();
+                await recordLoginEvent(email, "success", "", user.uid);
 
                 // 只供舊頁面顯示使用，不可拿它當成安全驗證。
                 sessionStorage.setItem("loginUser", profile.username);
@@ -860,6 +881,7 @@ input:focus{border-color:#7f9b83;box-shadow:0 0 0 3px rgba(93,120,102,.13)}
                 loginButton.textContent = "登入成功，正在進入…";
                 window.location.href = "pages/home.html";
             } catch (error) {
+                await recordLoginEvent(email, "failed", error.code || "unknown", auth.currentUser?.uid || "");
                 showMessage(readableError(error));
             }
         }

@@ -977,7 +977,7 @@ input:focus,textarea:focus,select:focus{outline:0;border-color:#7f9b83!important
                     </div>
 
                     <div class="section-subtitle">
-                        登入紀錄尚未接入，不顯示虛構資料
+                        顯示最近 100 筆登入成功、失敗及驗證狀態紀錄
                     </div>
 
                 </div>
@@ -1046,7 +1046,7 @@ input:focus,textarea:focus,select:focus{outline:0;border-color:#7f9b83!important
 
                 <br>
 
-                <strong>目前登入成功／失敗紀錄尚未接入正式紀錄來源，因此本頁不會顯示虛構的登入紀錄。
+                登入安全紀錄使用前端事件寫入 Firestore，適合課堂展示與功能驗收，但可能被偽造，不可視為正式安全稽核證據。
                 檢舉、文章、會員與管理員操作紀錄會依 Firestore 權限讀取；發布最新 Firestore Rules 後，仍需驗收各項管理操作。
 
                 <br>
@@ -1091,11 +1091,17 @@ async function getPosts(){const s=await getDocs(query(collection(db,"posts"),ord
 async function getReports(){const s=await getDocs(query(collection(db,"reports"),limit(100)));return s.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.createdAt?.toMillis?.()||0)-(a.createdAt?.toMillis?.()||0))}
 async function getUsers(){const s=await getDocs(query(collection(db,"users"),limit(100)));return s.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>String(a.username||"").localeCompare(String(b.username||""),"zh-Hant"))}
 async function getLogs(){try{const s=await getDocs(query(collection(db,"adminLogs"),orderBy("createdAt","desc"),limit(100)));return s.docs.map(d=>({id:d.id,...d.data()}))}catch(e){console.warn(e);return []}}
+async function getLoginLogs(){try{const s=await getDocs(query(collection(db,"loginLogs"),orderBy("createdAt","desc"),limit(100)));return s.docs.map(d=>({id:d.id,...d.data()}))}catch(e){console.warn("登入安全紀錄讀取失敗",e);return []}}
+function drawLoginLogs(data){
+ const labels={success:"登入成功",failed:"登入失敗",verification_required:"信箱尚未驗證",profile_missing:"個人資料不存在"};
+ const rows=data.map(x=>{const r=document.createElement("tr");r.append(cell(x.email||"未提供信箱"),cell(labels[x.outcome]||x.outcome||"未知事件"),cell(x.reason||"—"),cell(x.uid||"—"),cell(date(x.createdAt)));return r});
+ table(ui.login,["登入帳號","事件結果","原因／錯誤碼","使用者 UID","時間"],rows,"目前沒有登入安全紀錄。請在登入頁測試一次成功或失敗登入。");
+}
 function drawReports(data){const rows=data.map(x=>{const r=document.createElement("tr");r.append(cell(x.postTitle||x.title||x.postId||"未提供文章"),cell(x.reporterName||x.reporter||x.reporterUid||"匿名"),cell(x.reason||x.type||"未提供原因"),cell(x.details||x.description||"—"),cell(x.status||"pending"),cell(date(x.createdAt)));const a=document.createElement("td");if(x.status!=="resolved")a.appendChild(button("標記已處理","resolve-report",x.id));a.appendChild(button("刪除紀錄","delete-report",x.id));r.appendChild(a);return r});table(ui.reports,["文章","檢舉人","原因","補充","狀態","時間","操作"],rows,"目前沒有檢舉紀錄。")}
 function drawPosts(data){const rows=data.map(x=>{const r=document.createElement("tr");r.append(cell(x.title||(x.type==="note"?"便利貼":"無標題")),cell(x.anonymous?"匿名使用者":(x.authorName||"談心閣同學")),cell(({note:"便利貼",question:"提問",post:"發文"})[x.type]||x.type||"—"),cell(x.category||"—"),cell(date(x.createdAt)));const a=document.createElement("td");a.appendChild(button("刪除內容","delete-post",x.id));r.appendChild(a);return r});table(ui.posts,["標題","作者","類型","分類","發布時間","操作"],rows,"目前沒有使用者文章。")}
 function drawUsers(data){const rows=data.map(x=>{const r=document.createElement("tr");r.append(cell(x.username||x.email||x.id),cell(x.role==="admin"?"管理員":"一般使用者"),cell(date(x.createdAt)));const a=document.createElement("td");if(x.id===admin.uid)a.textContent="目前登入帳號";else a.appendChild(button(x.role==="admin"?"降為一般使用者":"設為管理員","toggle-role",x.id,{role:x.role==="admin"?"user":"admin"}));r.appendChild(a);return r});table(ui.users,["帳號","角色","建立時間","管理"],rows,"目前沒有會員資料。")}
 function drawLogs(data){const rows=data.map(x=>{const r=document.createElement("tr");r.append(cell(x.actorName||x.actorUid||"管理員"),cell(x.action||"—"),cell(x.targetId||"—"),cell(x.details||"—"),cell(date(x.createdAt)));return r});table(ui.logs,["管理員","操作","目標","詳細資訊","時間"],rows,"目前沒有管理員操作紀錄。")}
-async function refresh(){[ui.reports,ui.posts,ui.users,ui.login,ui.logs].forEach(e=>empty(e,"正在讀取資料庫…"));try{const [posts,reports,users,logs]=await Promise.all([getPosts(),getReports(),getUsers(),getLogs()]);ui.pending.textContent=reports.filter(x=>!["resolved","closed","done"].includes(String(x.status||"pending").toLowerCase())).length;ui.postsCount.textContent=posts.length;ui.questions.textContent=posts.filter(x=>x.type==="question").length;ui.notes.textContent=posts.filter(x=>x.type==="note").length;drawReports(reports);drawPosts(posts);drawUsers(users);drawLogs(logs);empty(ui.login,"目前尚未接入正式登入紀錄；不會顯示虛構的本機登入資料。")}catch(e){console.error("管理資料載入失敗",e);const m=e?.code==="permission-denied"?"資料庫拒絕讀取。請確認已發布 Firestore 規則，且目前帳號 role 為 admin。":(e.message||"請稍後重新載入。");[ui.reports,ui.posts,ui.users,ui.logs].forEach(el=>empty(el,m));toast("管理資料載入失敗，請檢查權限與 Firestore 規則。")}}
+async function refresh(){[ui.reports,ui.posts,ui.users,ui.login,ui.logs].forEach(e=>empty(e,"正在讀取資料庫…"));try{const [posts,reports,users,logs,loginLogs]=await Promise.all([getPosts(),getReports(),getUsers(),getLogs(),getLoginLogs()]);ui.pending.textContent=reports.filter(x=>!["resolved","closed","done"].includes(String(x.status||"pending").toLowerCase())).length;ui.postsCount.textContent=posts.length;ui.questions.textContent=posts.filter(x=>x.type==="question").length;ui.notes.textContent=posts.filter(x=>x.type==="note").length;drawReports(reports);drawPosts(posts);drawUsers(users);drawLogs(logs);drawLoginLogs(loginLogs)}catch(e){console.error("管理資料載入失敗",e);const m=e?.code==="permission-denied"?"資料庫拒絕讀取。請確認已發布 Firestore 規則，且目前帳號 role 為 admin。":(e.message||"請稍後重新載入。");[ui.reports,ui.posts,ui.users,ui.login,ui.logs].forEach(el=>empty(el,m));toast("管理資料載入失敗，請檢查權限與 Firestore 規則。")}}
 async function removePost(id){if(!confirm("確定要刪除這篇內容嗎？這會移除文章、留言、按讚及作者索引。"))return;
  for(const sub of ["likes","comments"]){let more=true;while(more){const snap=await getDocs(query(collection(db,"posts",id,sub),limit(400)));if(snap.empty){more=false;break}for(let i=0;i<snap.docs.length;i+=400){const batch=writeBatch(db);snap.docs.slice(i,i+400).forEach(d=>batch.delete(d.ref));await batch.commit()}more=snap.docs.length===400}}
  const privateRef=doc(db,"postPrivate",id),privateSnap=await getDoc(privateRef),batch=writeBatch(db);batch.delete(doc(db,"posts",id));if(privateSnap.exists()){batch.delete(privateRef);const uid=privateSnap.data().authorUid;if(uid)batch.delete(doc(db,"users",uid,"myPosts",id))}await batch.commit();await logAction("刪除內容",id,"刪除文章及其留言、按讚和作者索引");toast("內容及關聯資料已刪除。");await refresh()}
