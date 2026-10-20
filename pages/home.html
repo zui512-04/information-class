@@ -355,7 +355,7 @@ function wireUI(){
  $("#searchInput").addEventListener("input",e=>{searchTerm=e.target.value.trim();renderPosts()});
  $$("#filters button").forEach(b=>b.addEventListener("click",()=>setFilter(b.dataset.filter)));
  $$("[data-type-jump]").forEach(b=>b.addEventListener("click",()=>{setFilter(b.dataset.typeJump);$("#feed").scrollIntoView({behavior:"smooth"})}));
- $("[data-jump]").forEach(b=>b.addEventListener("click",()=>{setFilter("all");$("#feed").scrollIntoView({behavior:"smooth"})}));
+ $$("[data-jump]").forEach(b=>b.addEventListener("click",()=>{setFilter("all");$("#feed").scrollIntoView({behavior:"smooth"})}));
 }
 
 wireUI();
