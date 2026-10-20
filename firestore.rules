@@ -225,7 +225,10 @@ service cloud.firestore {
       // Admins can review all reports. A signed-in user can only check their own
       // deterministic report document (postId_uid), including checking whether it exists.
       allow get: if isAdmin()
-        || (signedIn() && reportId.matches('^.+_' + request.auth.uid + '
+        || (signedIn() && reportId.matches('.*_' + request.auth.uid));
+      allow list: if isAdmin();
+
+      allow create: if verifiedUser()
         && reportId == request.resource.data.postId + '_' + request.auth.uid
         && request.resource.data.keys().hasOnly([
           'postId', 'postTitle', 'reporterUid', 'reporterName',
