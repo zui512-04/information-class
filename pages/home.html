@@ -200,19 +200,10 @@ async function reportPost(postId){
   if(!reasons.includes(reason)){toast("請先選擇檢舉原因。");return}
   if(details.length>500){toast("補充說明最多 500 字。");return}
   const reportId=postId+"_"+currentUser.uid;
-  const reportRef=doc(db,"reports",reportId);
-  button.disabled=true;button.textContent="檢查中…";
+  button.disabled=true;button.textContent="送出中…";
   try{
-   // A deterministic report ID means a repeat submission becomes an update, not a create.
-   // Check for an existing report first so the user gets a clear explanation instead of a rules error.
-   const existingReport=await getDoc(reportRef);
-   if(existingReport.exists()){
-    toast("你已經檢舉過這篇內容，管理員會進行確認。");
-    close();
-    return;
-   }
-   button.textContent="送出中…";
-   await setDoc(reportRef,{
+   // Keep report creation write-only for regular users; report documents are private to admins.
+   await setDoc(doc(db,"reports",reportId),{
     postId,
     postTitle:String(post.title||"便利貼").slice(0,90),
     reporterUid:currentUser.uid,
@@ -226,7 +217,7 @@ async function reportPost(postId){
   }catch(error){
    console.error("送出檢舉失敗",error);
    if(error?.code==="permission-denied"){
-    toast("Firestore 拒絕建立檢舉。請確認 Firebase 已發布最新 Rules、帳號已驗證，且你尚未檢舉過這篇文章。");
+    toast("檢舉未送出：若你已檢舉過這篇內容，系統不允許重複送出；若是第一次檢舉，請確認 Firebase 已發布最新 Rules 且帳號已驗證。");
    }else{
     toast(readableError(error));
    }
