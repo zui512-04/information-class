@@ -1,1244 +1,885 @@
+
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
-
-    <meta name="viewport"
-          content="width=device-width,
-                   initial-scale=1.0,
-                   maximum-scale=1.0,
-                   user-scalable=no">
-
-    <meta name="theme-color" content="#5865f2">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#101226">
+    <meta name="description" content="資訊系談心閣，屬於資訊人的交流空間。">
     <title>資訊系談心閣｜登入</title>
 
     <style>
+        :root {
+            color-scheme: dark;
+            --bg: #101226;
+            --panel: rgba(24, 27, 54, .88);
+            --purple: #7775ff;
+            --purple-light: #a49cff;
+            --text: #f4f5ff;
+            --muted: #9299ba;
+            --border: rgba(255, 255, 255, .09);
+        }
+
         * {
             box-sizing: border-box;
-            margin: 0;
-            padding: 0;
         }
 
         body {
+            margin: 0;
             min-height: 100vh;
-            font-family:
-                "Noto Sans TC",
-                "Microsoft JhengHei",
-                Arial,
-                sans-serif;
-
-            background:
-                radial-gradient(
-                    circle at 20% 20%,
-                    rgba(120, 150, 255, 0.25),
-                    transparent 35%
-                ),
-                radial-gradient(
-                    circle at 80% 80%,
-                    rgba(180, 100, 255, 0.22),
-                    transparent 35%
-                ),
-                linear-gradient(
-                    135deg,
-                    #101426,
-                    #171c38,
-                    #22264a
-                );
-
-            color: #ffffff;
-
+            min-height: 100dvh;
             display: flex;
-            align-items: center;
             justify-content: center;
-
-            padding: 20px;
-
+            align-items: center;
+            padding: 30px 18px;
             overflow-x: hidden;
+            font-family: "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+            color: var(--text);
+            background:
+                radial-gradient(ellipse at 15% 15%, rgba(92, 82, 211, .23), transparent 38%),
+                radial-gradient(ellipse at 90% 85%, rgba(99, 64, 181, .2), transparent 38%),
+                linear-gradient(135deg, #0b0d1b, #15162e 52%, #101126);
         }
 
-        /* 背景裝飾 */
-
-        .bg-circle {
+        body::before,
+        body::after {
+            content: "";
             position: fixed;
-            border-radius: 50%;
-            filter: blur(5px);
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        .circle-1 {
-            width: 260px;
-            height: 260px;
-            background: rgba(88, 101, 242, 0.16);
-            top: -80px;
-            left: -80px;
-        }
-
-        .circle-2 {
             width: 300px;
             height: 300px;
-            background: rgba(170, 90, 255, 0.13);
+            border-radius: 50%;
+            filter: blur(90px);
+            opacity: .22;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        body::before {
+            top: -120px;
+            left: -90px;
+            background: #6d65ff;
+        }
+
+        body::after {
             right: -100px;
-            bottom: -100px;
+            bottom: -130px;
+            background: #a25bff;
         }
 
-        /* 主卡片 */
+        button, input {
+            font: inherit;
+        }
 
-        .login-wrapper {
-            position: relative;
-            z-index: 1;
+        button {
+            -webkit-tap-highlight-color: transparent;
+        }
 
+        .page {
             width: 100%;
-            max-width: 430px;
-
-            background: rgba(24, 28, 52, 0.88);
-
-            border: 1px solid rgba(255, 255, 255, 0.10);
-
-            border-radius: 26px;
-
-            padding: 38px 32px 30px;
-
-            box-shadow:
-                0 25px 70px rgba(0, 0, 0, 0.45),
-                inset 0 1px 0 rgba(255, 255, 255, 0.04);
-
-            backdrop-filter: blur(18px);
-            -webkit-backdrop-filter: blur(18px);
+            max-width: 440px;
+            margin: auto;
         }
 
-        /* Logo */
-
-        .logo-area {
+        .brand {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 27px;
         }
 
-        .logo {
-            width: 76px;
-            height: 76px;
-
-            margin: 0 auto 16px;
-
-            border-radius: 22px;
-
-            display: flex;
-            align-items: center;
-            justify-content: center;
-
-            font-size: 36px;
-
-            background:
-                linear-gradient(
-                    135deg,
-                    #6573ff,
-                    #8067e8,
-                    #a45ed5
-                );
-
-            box-shadow:
-                0 12px 30px rgba(88, 101, 242, 0.35);
-
-            user-select: none;
+        .brand-icon {
+            width: 74px;
+            height: 74px;
+            display: grid;
+            place-items: center;
+            margin: 0 auto 17px;
+            border: 1px solid rgba(174, 170, 255, .32);
+            border-radius: 24px;
+            background: linear-gradient(145deg, rgba(120, 115, 255, .3), rgba(82, 72, 160, .12));
+            box-shadow: 0 12px 40px rgba(90, 79, 230, .17);
+            font-size: 35px;
         }
 
-        .logo-area h1 {
-            font-size: 25px;
+        .brand h1 {
+            margin: 0;
+            font-size: clamp(25px, 6vw, 30px);
             font-weight: 800;
-            letter-spacing: 1px;
+            letter-spacing: 2px;
         }
 
-        .logo-area p {
-            margin-top: 8px;
-
+        .brand p {
+            margin: 10px 0 0;
+            color: #a3a8c7;
             font-size: 13px;
-            color: #aeb5d2;
-
-            line-height: 1.6;
+            letter-spacing: 1.2px;
         }
 
-        /* 表單 */
-
-        .form-group {
-            margin-bottom: 18px;
+        .card {
+            padding: 32px;
+            border: 1px solid var(--border);
+            border-radius: 25px;
+            background: var(--panel);
+            box-shadow: 0 25px 80px rgba(0, 0, 0, .3);
+            backdrop-filter: blur(22px);
+            -webkit-backdrop-filter: blur(22px);
         }
 
-        .form-group label {
-            display: block;
+        .card-heading {
+            margin-bottom: 23px;
+        }
 
-            margin-bottom: 8px;
+        .card-heading h2 {
+            margin: 0 0 8px;
+            font-size: 22px;
+            font-weight: 750;
+        }
 
+        .card-heading p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.7;
+        }
+
+        .mode-switch {
+            display: flex;
+            gap: 7px;
+            padding: 5px;
+            margin-bottom: 25px;
+            border: 1px solid rgba(255, 255, 255, .05);
+            border-radius: 14px;
+            background: rgba(9, 11, 27, .62);
+        }
+
+        .mode-button {
+            flex: 1;
+            min-height: 43px;
+            border: 0;
+            border-radius: 10px;
+            background: transparent;
+            color: #9299ba;
             font-size: 14px;
             font-weight: 700;
+            cursor: pointer;
+            transition: background .2s, color .2s;
+        }
 
-            color: #dfe3f7;
+        .mode-button.active {
+            color: white;
+            background: linear-gradient(135deg, #6979ff, #8465e8);
+            box-shadow: 0 5px 16px rgba(105, 113, 255, .2);
+        }
+
+        .form-group {
+            margin-bottom: 19px;
+        }
+
+        .form-group[hidden],
+        .hidden {
+            display: none !important;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 9px;
+            color: #e0e3fa;
+            font-size: 13px;
+            font-weight: 650;
         }
 
         .input-wrapper {
             position: relative;
         }
 
-        .input-wrapper input {
+        input {
+            display: block;
             width: 100%;
-
-            height: 52px;
-
-            border: 1px solid rgba(255, 255, 255, 0.10);
-            border-radius: 14px;
-
-            background: rgba(10, 13, 28, 0.72);
-
-            color: #ffffff;
-
-            padding: 0 15px;
-
-            font-size: 15px;
-
+            height: 49px;
+            padding: 0 14px;
+            border: 1px solid rgba(183, 187, 230, .13);
+            border-radius: 12px;
             outline: none;
-
-            transition:
-                border-color 0.2s,
-                box-shadow 0.2s,
-                background 0.2s;
+            background: rgba(8, 10, 25, .5);
+            color: white;
+            font-size: 14px;
+            transition: border-color .2s, box-shadow .2s;
         }
 
-        .input-wrapper.password input {
-            padding-right: 55px;
+        input::placeholder {
+            color: #69708e;
         }
 
-        .input-wrapper input::placeholder {
-            color: #6f7694;
+        input:focus {
+            border-color: #8580ff;
+            box-shadow: 0 0 0 3px rgba(119, 117, 255, .13);
         }
 
-        .input-wrapper input:focus {
-            border-color: #7180ff;
-
-            background: rgba(12, 16, 34, 0.9);
-
-            box-shadow:
-                0 0 0 3px rgba(113, 128, 255, 0.12);
+        .password-input {
+            padding-right: 48px;
         }
-
-        /* 顯示密碼 */
 
         .password-toggle {
             position: absolute;
-
-            right: 8px;
             top: 50%;
-
+            right: 10px;
             transform: translateY(-50%);
-
-            width: 38px;
-            height: 38px;
-
-            border: none;
-            border-radius: 10px;
-
+            display: grid;
+            place-items: center;
+            width: 34px;
+            height: 34px;
+            border: 0;
+            border-radius: 8px;
             background: transparent;
-
-            color: #8d95b6;
-
-            cursor: pointer;
-
+            color: #aab0d0;
             font-size: 17px;
+            cursor: pointer;
         }
 
         .password-toggle:hover {
-            background: rgba(255, 255, 255, 0.06);
-            color: #ffffff;
+            background: rgba(255, 255, 255, .07);
+            color: white;
         }
 
-        /* 錯誤訊息 */
+        .field-hint {
+            margin: 7px 0 0;
+            color: #7f87a8;
+            font-size: 11px;
+            line-height: 1.6;
+        }
 
         .error-message {
             display: none;
-
-            margin: 8px 0 15px;
-
-            padding: 11px 13px;
-
-            border-radius: 12px;
-
-            background: rgba(255, 76, 76, 0.10);
-
-            border: 1px solid rgba(255, 76, 76, 0.20);
-
-            color: #ff9b9b;
-
-            font-size: 13px;
-
-            line-height: 1.5;
+            margin: 0 0 17px;
+            padding: 12px 13px;
+            border: 1px solid rgba(255, 107, 135, .2);
+            border-radius: 11px;
+            background: rgba(255, 80, 110, .08);
+            color: #ff9bad;
+            font-size: 12px;
+            line-height: 1.7;
+            overflow-wrap: anywhere;
         }
 
         .error-message.show {
             display: block;
         }
 
-        /* 登入按鈕 */
+        .error-message.success {
+            border-color: rgba(90, 220, 160, .23);
+            background: rgba(50, 200, 130, .09);
+            color: #a0edc3;
+        }
 
         .login-button {
             width: 100%;
-            height: 54px;
-
-            border: none;
-            border-radius: 15px;
-
-            background:
-                linear-gradient(
-                    135deg,
-                    #6474ff,
-                    #7b68e8
-                );
-
-            color: #ffffff;
-
-            font-size: 16px;
-            font-weight: 800;
-
+            min-height: 50px;
+            margin-top: 3px;
+            border: 0;
+            border-radius: 12px;
+            background: linear-gradient(110deg, #6979ff, #9167ed);
+            color: white;
+            font-size: 15px;
+            font-weight: 750;
+            letter-spacing: .5px;
             cursor: pointer;
-
-            box-shadow:
-                0 10px 25px rgba(92, 105, 245, 0.25);
-
-            transition:
-                transform 0.15s,
-                filter 0.15s,
-                opacity 0.15s;
+            box-shadow: 0 9px 24px rgba(99, 91, 235, .2);
+            transition: transform .2s, filter .2s;
         }
 
-        .login-button:hover {
-            filter: brightness(1.08);
-            transform: translateY(-1px);
-        }
-
-        .login-button:active {
-            transform: translateY(1px);
+        .login-button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            filter: brightness(1.1);
         }
 
         .login-button:disabled {
-            cursor: not-allowed;
-            opacity: 0.55;
-            transform: none;
-            filter: none;
+            opacity: .65;
+            cursor: wait;
         }
 
-        /* 測試帳號 */
-
-        .demo-box {
-            margin-top: 22px;
-
-            padding: 15px;
-
-            border-radius: 15px;
-
-            background: rgba(255, 255, 255, 0.035);
-
-            border: 1px solid rgba(255, 255, 255, 0.06);
-        }
-
-        .demo-title {
-            color: #cdd3ee;
-
+        .secondary-action {
+            display: block;
+            width: 100%;
+            margin-top: 16px;
+            padding: 2px;
+            border: 0;
+            background: transparent;
+            color: #a7a5ff;
             font-size: 12px;
-            font-weight: 800;
-
-            margin-bottom: 10px;
+            cursor: pointer;
         }
 
-        .demo-account {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-
-            gap: 10px;
-
-            padding: 8px 0;
-
-            font-size: 12px;
-
-            color: #9199b8;
+        .secondary-action:hover {
+            color: white;
         }
-
-        .demo-account + .demo-account {
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .demo-account strong {
-            color: #dfe3f7;
-            font-weight: 700;
-        }
-
-        .demo-account span:last-child {
-            color: #7f89ff;
-            font-weight: 700;
-        }
-
-        /* 安全提示 */
 
         .security-info {
-            margin-top: 18px;
-
-            text-align: center;
-
-            color: #747b99;
-
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-top: 23px;
+            padding: 13px;
+            border: 1px solid rgba(125, 145, 255, .1);
+            border-radius: 12px;
+            background: rgba(101, 117, 255, .055);
+            color: #9099bc;
             font-size: 11px;
-
-            line-height: 1.7;
+            line-height: 1.8;
         }
 
-        .security-info span {
-            color: #8e97ff;
+        .security-icon {
+            flex-shrink: 0;
+            font-size: 15px;
         }
-
-        /* 頁尾 */
 
         .footer {
-            margin-top: 22px;
-
-            text-align: center;
-
+            margin-top: 24px;
+            color: #6f7695;
             font-size: 11px;
-
-            color: #606780;
+            text-align: center;
+            line-height: 1.8;
         }
-
-        /* RWD */
 
         @media (max-width: 480px) {
             body {
-                padding: 15px;
+                padding: 24px 15px;
             }
 
-            .login-wrapper {
-                padding: 30px 22px 25px;
-
-                border-radius: 22px;
+            .card {
+                padding: 24px 20px;
+                border-radius: 21px;
             }
 
-            .logo {
-                width: 68px;
-                height: 68px;
-
-                font-size: 32px;
-
-                border-radius: 20px;
+            .brand-icon {
+                width: 65px;
+                height: 65px;
+                border-radius: 21px;
             }
+        }
 
-            .logo-area h1 {
-                font-size: 22px;
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                transition: none !important;
             }
         }
     </style>
 </head>
 
 <body>
-
-    <div class="bg-circle circle-1"></div>
-    <div class="bg-circle circle-2"></div>
-
-    <main class="login-wrapper">
-
-        <section class="logo-area">
-
-            <div class="logo">
-                💻
-            </div>
-
+    <main class="page">
+        <header class="brand">
+            <div class="brand-icon" aria-hidden="true">💻</div>
             <h1>資訊系談心閣</h1>
+            <p>寫下想法，分享日常，找到同路人</p>
+        </header>
 
-            <p>
-                資訊系學生的交流社群<br>
-                課業、程式、遊戲與日常，都可以聊
-            </p>
+        <section class="card">
+            <div class="card-heading">
+                <h2 id="headingTitle">歡迎回來</h2>
+                <p id="headingDescription">登入帳號，回到屬於資訊人的交流空間。</p>
+            </div>
 
-        </section>
+            <div class="mode-switch" role="group" aria-label="選擇登入或註冊">
+                <button type="button" class="mode-button active" id="loginModeButton">
+                    登入
+                </button>
+                <button type="button" class="mode-button" id="registerModeButton">
+                    註冊帳號
+                </button>
+            </div>
 
-
-        <form id="loginForm">
-
-            <div class="form-group">
-
-                <label for="username">
-                    帳號
-                </label>
-
-                <div class="input-wrapper">
-
-                    <input
-                        id="username"
-                        type="text"
-                        autocomplete="username"
-                        maxlength="30"
-                        placeholder="請輸入帳號"
-                        required
-                    >
-
+            <form id="authForm">
+                <div class="form-group" id="usernameGroup" hidden>
+                    <label for="username">自訂帳號</label>
+                    <div class="input-wrapper">
+                        <input
+                            id="username"
+                            type="text"
+                            autocomplete="username"
+                            minlength="3"
+                            maxlength="20"
+                            pattern="[a-zA-Z0-9_]{3,20}"
+                            placeholder="例如：student_01"
+                        >
+                    </div>
+                    <p class="field-hint">3～20 個字元，只能使用英文、數字及底線；這會是你的公開名稱。</p>
                 </div>
 
-            </div>
-
-
-            <div class="form-group">
-
-                <label for="password">
-                    密碼
-                </label>
-
-                <div class="input-wrapper password">
-
-                    <input
-                        id="password"
-                        type="password"
-                        autocomplete="current-password"
-                        maxlength="50"
-                        placeholder="請輸入密碼"
-                        required
-                    >
-
-                    <button
-                        type="button"
-                        class="password-toggle"
-                        id="passwordToggle"
-                        aria-label="顯示密碼"
-                    >
-                        👁
-                    </button>
-
+                <div class="form-group">
+                    <label for="email">電子郵件</label>
+                    <div class="input-wrapper">
+                        <input
+                            id="email"
+                            type="email"
+                            autocomplete="email"
+                            maxlength="254"
+                            placeholder="請輸入電子郵件"
+                            required
+                        >
+                    </div>
                 </div>
 
+                <div class="form-group">
+                    <label for="password">密碼</label>
+                    <div class="input-wrapper">
+                        <input
+                            class="password-input"
+                            id="password"
+                            type="password"
+                            autocomplete="current-password"
+                            minlength="8"
+                            maxlength="128"
+                            placeholder="至少 8 個字元"
+                            required
+                        >
+                        <button
+                            type="button"
+                            class="password-toggle"
+                            id="passwordToggle"
+                            aria-label="顯示密碼"
+                            aria-pressed="false"
+                            title="顯示或隱藏密碼"
+                        >👁</button>
+                    </div>
+                </div>
+
+                <div class="form-group" id="confirmPasswordGroup" hidden>
+                    <label for="confirmPassword">確認密碼</label>
+                    <div class="input-wrapper">
+                        <input
+                            class="password-input"
+                            id="confirmPassword"
+                            type="password"
+                            autocomplete="new-password"
+                            maxlength="128"
+                            placeholder="請再次輸入密碼"
+                        >
+                        <button
+                            type="button"
+                            class="password-toggle"
+                            id="confirmPasswordToggle"
+                            aria-label="顯示確認密碼"
+                            aria-pressed="false"
+                            title="顯示或隱藏確認密碼"
+                        >👁</button>
+                    </div>
+                </div>
+
+                <div
+                    id="errorMessage"
+                    class="error-message"
+                    role="status"
+                    aria-live="polite"
+                ></div>
+
+                <button type="submit" class="login-button" id="loginButton">
+                    登入談心閣
+                </button>
+
+                <button type="button" class="secondary-action" id="forgotPasswordButton">
+                    忘記密碼？寄送重設信件
+                </button>
+
+                <button type="button" class="secondary-action hidden" id="resendVerificationButton">
+                    重新寄送驗證信
+                </button>
+            </form>
+
+            <div class="security-info">
+                <span class="security-icon">🔐</span>
+                <span>帳號使用 Firebase 驗證。請勿與他人分享密碼；註冊後需先完成電子郵件驗證，才能登入。</span>
             </div>
-
-
-            <div
-                id="errorMessage"
-                class="error-message"
-            ></div>
-
-
-            <button
-                type="submit"
-                class="login-button"
-                id="loginButton"
-            >
-                登入談心閣
-            </button>
-
-        </form>
-
-
-        <section class="demo-box">
-
-            <div class="demo-title">
-                🧪 報告測試帳號
-            </div>
-
-            <div class="demo-account">
-                <strong>一般使用者</strong>
-                <span>student / 123456</span>
-            </div>
-
-            <div class="demo-account">
-                <strong>管理員</strong>
-                <span>admin / admin123</span>
-            </div>
-
         </section>
 
-
-        <div class="security-info">
-            <span>🔒</span>
-            登入系統具備基本的登入失敗限制與操作紀錄功能
-        </div>
-
-
-        <div class="footer">
-            資訊系談心閣 · Cyber Community
-        </div>
-
+        <footer class="footer">
+            © 資訊系談心閣<br>
+            讓每個想法，都有一個可以交流的地方。
+        </footer>
     </main>
 
+    <script type="module">
+        import {
+            initializeApp
+        } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-app.js";
 
-<script>
+        import {
+            getAuth,
+            createUserWithEmailAndPassword,
+            signInWithEmailAndPassword,
+            sendEmailVerification,
+            sendPasswordResetEmail,
+            signOut,
+            deleteUser
+        } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-auth.js";
 
-    /* =====================================================
-       基本設定
-       ===================================================== */
+        import {
+            getFirestore,
+            doc,
+            getDoc,
+            writeBatch,
+            serverTimestamp
+        } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-firestore.js";
 
-    const accounts = {
+        const firebaseConfig = {
+            apiKey: "AIzaSyC4JcXSSVmQTrEtC4lXoWeDz2lLr3eVGtw",
+            authDomain: "information-4d4f4.firebaseapp.com",
+            projectId: "information-4d4f4",
+            storageBucket: "information-4d4f4.firebasestorage.app",
+            messagingSenderId: "311907004696",
+            appId: "1:311907004696:web:fe43a91660989ccb282e6d",
+            measurementId: "G-SREHE03KC4"
+        };
 
-        student: {
-            password: "123456",
-            role: "user"
-        },
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
 
-        admin: {
-            password: "admin123",
-            role: "admin"
+        const authForm = document.getElementById("authForm");
+        const loginModeButton = document.getElementById("loginModeButton");
+        const registerModeButton = document.getElementById("registerModeButton");
+        const usernameGroup = document.getElementById("usernameGroup");
+        const usernameInput = document.getElementById("username");
+        const emailInput = document.getElementById("email");
+        const passwordInput = document.getElementById("password");
+        const confirmPasswordGroup = document.getElementById("confirmPasswordGroup");
+        const confirmPasswordInput = document.getElementById("confirmPassword");
+        const passwordToggle = document.getElementById("passwordToggle");
+        const confirmPasswordToggle = document.getElementById("confirmPasswordToggle");
+        const loginButton = document.getElementById("loginButton");
+        const errorMessage = document.getElementById("errorMessage");
+        const forgotPasswordButton = document.getElementById("forgotPasswordButton");
+        const resendVerificationButton = document.getElementById("resendVerificationButton");
+        const headingTitle = document.getElementById("headingTitle");
+        const headingDescription = document.getElementById("headingDescription");
+
+        let currentMode = "login";
+        let busy = false;
+
+        function showMessage(message, type = "error") {
+            errorMessage.textContent = message;
+            errorMessage.classList.add("show");
+            errorMessage.classList.toggle("success", type === "success");
         }
 
-    };
+        function hideMessage() {
+            errorMessage.textContent = "";
+            errorMessage.classList.remove("show", "success");
+        }
 
+        function switchMode(mode) {
+            currentMode = mode;
+            const isRegister = mode === "register";
 
-    /*
-     * 登入失敗 5 次後暫時鎖定
-     * 這只是前端 Demo 防護
-     */
+            hideMessage();
 
-    const MAX_ATTEMPTS = 5;
+            usernameGroup.hidden = !isRegister;
+            confirmPasswordGroup.hidden = !isRegister;
+            usernameInput.required = isRegister;
+            confirmPasswordInput.required = isRegister;
 
-    const LOCK_TIME = 30 * 1000;
+            loginModeButton.classList.toggle("active", !isRegister);
+            registerModeButton.classList.toggle("active", isRegister);
 
-    const ATTEMPTS_KEY =
-        "talkingHallLoginAttempts";
+            headingTitle.textContent = isRegister ? "建立你的帳號" : "歡迎回來";
+            headingDescription.textContent = isRegister
+                ? "建立專屬帳號，加入資訊人的交流空間。"
+                : "登入帳號，回到屬於資訊人的交流空間。";
 
-    const LOCK_KEY =
-        "talkingHallLoginLock";
+            loginButton.textContent = isRegister ? "建立我的帳號" : "登入談心閣";
+            passwordInput.autocomplete = isRegister ? "new-password" : "current-password";
 
-    const LOGIN_LOG_KEY =
-        "talkingHallLoginLogs";
+            forgotPasswordButton.classList.toggle("hidden", isRegister);
+            resendVerificationButton.classList.add("hidden");
+        }
 
+        loginModeButton.addEventListener("click", () => switchMode("login"));
+        registerModeButton.addEventListener("click", () => switchMode("register"));
 
-    /* =====================================================
-       DOM
-       ===================================================== */
+        function attachPasswordToggle(input, button) {
+            button.addEventListener("click", () => {
+                const show = input.type === "password";
+                input.type = show ? "text" : "password";
+                button.textContent = show ? "🙈" : "👁";
+                button.setAttribute("aria-pressed", String(show));
+                button.setAttribute("aria-label", show ? "隱藏密碼" : "顯示密碼");
+            });
+        }
 
-    const loginForm =
-        document.getElementById("loginForm");
+        attachPasswordToggle(passwordInput, passwordToggle);
+        attachPasswordToggle(confirmPasswordInput, confirmPasswordToggle);
 
-    const usernameInput =
-        document.getElementById("username");
+        function readableError(error) {
+            console.error("Firebase 操作錯誤：", error);
 
-    const passwordInput =
-        document.getElementById("password");
+            const messages = {
+                "auth/email-already-in-use": "這個電子郵件已經註冊，請切換到登入。",
+                "auth/invalid-email": "電子郵件格式不正確。",
+                "auth/weak-password": "密碼強度不足，請設定至少 8 個字元的密碼。",
+                "auth/invalid-credential": "電子郵件或密碼錯誤，請重新確認。",
+                "auth/user-disabled": "此帳號目前無法登入。",
+                "auth/too-many-requests": "操作次數過多，請稍後再試。",
+                "auth/network-request-failed": "網路連線失敗，請確認網路後再試。",
+                "auth/operation-not-allowed": "Firebase 尚未啟用電子郵件／密碼登入。",
+                "auth/invalid-action-code": "驗證連結已失效或已使用，請重新取得驗證信。",
+                "permission-denied": "資料庫拒絕這次操作，請確認 Firestore Rules。",
+                "unavailable": "資料庫目前無法連線，請稍後再試。"
+            };
 
-    const passwordToggle =
-        document.getElementById("passwordToggle");
+            return messages[error.code] ||
+                "操作失敗（" + (error.code || "未知錯誤") + "）。請確認 Firebase 設定後再試。";
+        }
 
-    const loginButton =
-        document.getElementById("loginButton");
+        function setLoading(isLoading) {
+            busy = isLoading;
+            loginButton.disabled = isLoading;
+            loginModeButton.disabled = isLoading;
+            registerModeButton.disabled = isLoading;
 
-    const errorMessage =
-        document.getElementById("errorMessage");
-
-
-    /* =====================================================
-       顯示錯誤
-       ===================================================== */
-
-    function showError(message) {
-
-        errorMessage.textContent = message;
-
-        errorMessage.classList.add("show");
-
-    }
-
-
-    function hideError() {
-
-        errorMessage.textContent = "";
-
-        errorMessage.classList.remove("show");
-
-    }
-
-
-    /* =====================================================
-       密碼顯示 / 隱藏
-       ===================================================== */
-
-    passwordToggle.addEventListener(
-        "click",
-        function () {
-
-            if (passwordInput.type === "password") {
-
-                passwordInput.type = "text";
-
-                passwordToggle.textContent = "🙈";
-
-                passwordToggle.setAttribute(
-                    "aria-label",
-                    "隱藏密碼"
-                );
-
+            if (isLoading) {
+                loginButton.textContent = "處理中…";
             } else {
-
-                passwordInput.type = "password";
-
-                passwordToggle.textContent = "👁";
-
-                passwordToggle.setAttribute(
-                    "aria-label",
-                    "顯示密碼"
-                );
-
+                loginButton.textContent = currentMode === "register"
+                    ? "建立我的帳號"
+                    : "登入談心閣";
             }
-
-        }
-    );
-
-
-    /* =====================================================
-       取得剩餘鎖定時間
-       ===================================================== */
-
-    function getRemainingLockMs() {
-
-        const lockUntil =
-            Number(
-                localStorage.getItem(LOCK_KEY)
-            );
-
-        /*
-         * 沒有鎖定紀錄
-         */
-
-        if (
-            !Number.isFinite(lockUntil) ||
-            lockUntil <= 0
-        ) {
-
-            return 0;
-
         }
 
-
-        const remaining =
-            lockUntil - Date.now();
-
-
-        /*
-         * 鎖定時間已經過了
-         * 自動清除舊資料
-         */
-
-        if (remaining <= 0) {
-
-            localStorage.removeItem(LOCK_KEY);
-
-            localStorage.removeItem(ATTEMPTS_KEY);
-
-            return 0;
-
-        }
-
-
-        return remaining;
-
-    }
-
-
-    /* =====================================================
-       更新鎖定介面
-       ===================================================== */
-
-    function updateLockUI() {
-
-        const remaining =
-            getRemainingLockMs();
-
-
-        /*
-         * 沒有鎖定
-         */
-
-        if (remaining <= 0) {
-
-            loginButton.disabled = false;
-
-            /*
-             * 如果原本顯示的是鎖定訊息
-             * 就清除
-             */
-
-            if (
-                errorMessage.textContent.includes(
-                    "登入嘗試過於頻繁"
-                )
-            ) {
-
-                hideError();
-
-            }
-
-            return false;
-
-        }
-
-
-        /*
-         * 目前仍在鎖定
-         */
-
-        loginButton.disabled = true;
-
-
-        const seconds =
-            Math.ceil(
-                remaining / 1000
-            );
-
-
-        showError(
-            `登入嘗試過於頻繁，請 ${seconds} 秒後再試。`
-        );
-
-
-        return true;
-
-    }
-
-
-    /* =====================================================
-       啟動鎖定倒數
-       ===================================================== */
-
-    let lockTimer = null;
-
-
-    function startLockTimer() {
-
-        if (lockTimer) {
-
-            clearInterval(lockTimer);
-
-        }
-
-
-        updateLockUI();
-
-
-        lockTimer =
-            setInterval(
-                function () {
-
-                    const locked =
-                        updateLockUI();
-
-
-                    /*
-                     * 鎖定結束
-                     */
-
-                    if (!locked) {
-
-                        clearInterval(lockTimer);
-
-                        lockTimer = null;
-
-                    }
-
-                },
-                500
-            );
-
-    }
-
-
-    /* =====================================================
-       儲存登入紀錄
-       ===================================================== */
-
-    function saveLoginLog(
-        username,
-        success,
-        role = "unknown"
-    ) {
-
-        let logs = [];
-
-        try {
-
-            const saved =
-                localStorage.getItem(
-                    LOGIN_LOG_KEY
-                );
-
-            logs =
-                saved
-                    ? JSON.parse(saved)
-                    : [];
-
-            if (!Array.isArray(logs)) {
-
-                logs = [];
-
-            }
-
-        } catch (error) {
-
-            logs = [];
-
-        }
-
-
-        logs.unshift({
-
-            id:
-                Date.now().toString(),
-
-            username:
-                username || "未輸入",
-
-            success:
-                success,
-
-            role:
-                role,
-
-            time:
-                new Date().toISOString()
-
-        });
-
-
-        /*
-         * 只保留最近 100 筆
-         */
-
-        logs =
-            logs.slice(0, 100);
-
-
-        localStorage.setItem(
-            LOGIN_LOG_KEY,
-            JSON.stringify(logs)
-        );
-
-    }
-
-
-    /* =====================================================
-       登入
-       ===================================================== */
-
-    function login() {
-
-        /*
-         * 先檢查是否鎖定
-         */
-
-        if (updateLockUI()) {
-
-            return;
-
-        }
-
-
-        const username =
-            usernameInput.value.trim();
-
-        const password =
-            passwordInput.value;
-
-
-        /*
-         * 基本驗證
-         */
-
-        if (!username) {
-
-            showError("請輸入帳號。");
-
-            usernameInput.focus();
-
-            return;
-
-        }
-
-
-        if (!password) {
-
-            showError("請輸入密碼。");
-
-            passwordInput.focus();
-
-            return;
-
-        }
-
-
-        /*
-         * 取得失敗次數
-         */
-
-        let attempts =
-            Number(
-                localStorage.getItem(
-                    ATTEMPTS_KEY
-                )
-            );
-
-
-        if (
-            !Number.isFinite(attempts) ||
-            attempts < 0
-        ) {
-
-            attempts = 0;
-
-        }
-
-
-        /*
-         * 查詢帳號
-         */
-
-        const account =
-            accounts[username];
-
-
-        /*
-         * 帳號不存在或密碼錯誤
-         */
-
-        if (
-            !account ||
-            account.password !== password
-        ) {
-
-            attempts++;
-
-            localStorage.setItem(
-                ATTEMPTS_KEY,
-                String(attempts)
-            );
-
-
-            saveLoginLog(
-                username,
-                false
-            );
-
-
-            /*
-             * 達到最大失敗次數
-             */
-
-            if (attempts >= MAX_ATTEMPTS) {
-
-                const lockUntil =
-                    Date.now() + LOCK_TIME;
-
-
-                localStorage.setItem(
-                    LOCK_KEY,
-                    String(lockUntil)
-                );
-
-
-                /*
-                 * 這裡立即更新 UI
-                 */
-
-                startLockTimer();
-
-
+        async function registerAccount() {
+            const username = usernameInput.value.trim().toLowerCase();
+            const email = emailInput.value.trim().toLowerCase();
+            const password = passwordInput.value;
+            const confirmPassword = confirmPasswordInput.value;
+
+            if (!/^[a-z0-9_]{3,20}$/.test(username)) {
+                showMessage("自訂帳號需為 3～20 個字元，只能使用英文、數字和底線。");
+                usernameInput.focus();
                 return;
-
             }
 
+            if (password.length < 8) {
+                showMessage("密碼至少需要 8 個字元。");
+                passwordInput.focus();
+                return;
+            }
 
-            const remainingAttempts =
-                MAX_ATTEMPTS - attempts;
+            if (password !== confirmPassword) {
+                showMessage("兩次輸入的密碼不一致。");
+                confirmPasswordInput.focus();
+                return;
+            }
 
+            let createdUser = null;
+            let profileCreated = false;
 
-            showError(
-                `帳號或密碼錯誤，還可以嘗試 ${remainingAttempts} 次。`
-            );
+            try {
+                const usernameRef = doc(db, "usernames", username);
+                const usernameSnapshot = await getDoc(usernameRef);
 
-
-            passwordInput.value = "";
-
-            passwordInput.focus();
-
-            return;
-
-        }
-
-
-        /* =================================================
-           登入成功
-           ================================================= */
-
-        /*
-         * 清除失敗紀錄
-         */
-
-        localStorage.removeItem(
-            ATTEMPTS_KEY
-        );
-
-        localStorage.removeItem(
-            LOCK_KEY
-        );
-
-
-        /*
-         * 儲存登入狀態
-         */
-
-        sessionStorage.setItem(
-            "loginUser",
-            username
-        );
-
-        sessionStorage.setItem(
-            "userRole",
-            account.role
-        );
-
-
-        /*
-         * 為了讓使用者直接雙擊 HTML 開啟時
-         * 其他頁面也能讀取，暫時同步存一份。
-         *
-         * 注意：
-         * 這是 Demo 用法，不是真正安全的登入系統。
-         */
-
-        localStorage.setItem(
-            "loginUser",
-            username
-        );
-
-        localStorage.setItem(
-            "userRole",
-            account.role
-        );
-
-
-        saveLoginLog(
-            username,
-            true,
-            account.role
-        );
-
-
-        /*
-         * 暫時禁止按鈕避免重複提交
-         */
-
-        loginButton.disabled = true;
-
-        loginButton.textContent =
-            "登入成功，正在進入…";
-
-
-        /*
-         * 根據角色進入不同頁面
-         */
-
-        setTimeout(
-            function () {
-
-                if (
-                    account.role === "admin"
-                ) {
-
-                    window.location.href =
-                        "pages/admin.html";
-
-                } else {
-
-                    window.location.href =
-                        "pages/home.html";
-
+                if (usernameSnapshot.exists()) {
+                    showMessage("這個自訂帳號已被使用，請換一個。");
+                    usernameInput.focus();
+                    return;
                 }
 
-            },
-            300
-        );
+                const credential = await createUserWithEmailAndPassword(
+                    auth, email, password
+                );
 
-    }
+                createdUser = credential.user;
 
+                const batch = writeBatch(db);
 
-    /* =====================================================
-       表單提交
-       ===================================================== */
+                batch.set(usernameRef, {
+                    uid: createdUser.uid
+                });
 
-    loginForm.addEventListener(
-        "submit",
-        function (event) {
+                batch.set(doc(db, "users", createdUser.uid), {
+                    username: username,
+                    createdAt: serverTimestamp()
+                });
 
+                await batch.commit();
+                profileCreated = true;
+
+                try {
+                    await sendEmailVerification(createdUser);
+                } catch (emailError) {
+                    console.error("驗證信寄送失敗：", emailError);
+                    showMessage(
+                        "帳號已建立，但驗證信暫時寄送失敗。請稍後登入並重新寄送驗證信。"
+                    );
+                    await signOut(auth);
+                    return;
+                }
+
+                await signOut(auth);
+
+                passwordInput.value = "";
+                confirmPasswordInput.value = "";
+                switchMode("login");
+                emailInput.value = email;
+
+                showMessage(
+                    "註冊成功！驗證信已寄出，請先到電子郵件完成驗證，再登入談心閣。",
+                    "success"
+                );
+            } catch (error) {
+                console.error("註冊失敗：", error);
+
+                if (createdUser && !profileCreated) {
+                    try {
+                        await deleteUser(createdUser);
+                    } catch (cleanupError) {
+                        console.error("清理未完成的帳號失敗：", cleanupError);
+                    }
+                    try {
+                        await signOut(auth);
+                    } catch (_) {}
+                }
+
+                if (error.code === "permission-denied") {
+                    showMessage("Firestore 拒絕建立資料。請確認已發布正確的資料庫 Rules。");
+                } else {
+                    showMessage(readableError(error));
+                }
+            }
+        }
+
+        async function loginAccount() {
+            const email = emailInput.value.trim().toLowerCase();
+            const password = passwordInput.value;
+
+            if (!email || !password) {
+                showMessage("請輸入電子郵件和密碼。");
+                return;
+            }
+
+            try {
+                const credential = await signInWithEmailAndPassword(
+                    auth, email, password
+                );
+
+                const user = credential.user;
+
+                if (!user.emailVerified) {
+                    await signOut(auth);
+                    showMessage("電子郵件尚未驗證。請先查看信箱中的驗證信；如果沒有收到，可以重新寄送。");
+                    resendVerificationButton.classList.remove("hidden");
+                    return;
+                }
+
+                const profileSnapshot = await getDoc(doc(db, "users", user.uid));
+
+                if (!profileSnapshot.exists()) {
+                    await signOut(auth);
+                    showMessage("找不到你的個人資料，請聯絡網站管理員。");
+                    return;
+                }
+
+                const profile = profileSnapshot.data();
+
+                // 只供舊頁面顯示使用，不可拿它當成安全驗證。
+                sessionStorage.setItem("loginUser", profile.username);
+                localStorage.setItem("loginUser", profile.username);
+
+                // 不從瀏覽器儲存的角色判定管理員身分。
+                sessionStorage.removeItem("userRole");
+                localStorage.removeItem("userRole");
+
+                loginButton.textContent = "登入成功，正在進入…";
+                window.location.href = "pages/home.html";
+            } catch (error) {
+                showMessage(readableError(error));
+            }
+        }
+
+        authForm.addEventListener("submit", async (event) => {
             event.preventDefault();
 
-            login();
+            if (busy) return;
+            hideMessage();
 
-        }
-    );
+            if (!authForm.reportValidity()) return;
 
+            setLoading(true);
 
-    /* =====================================================
-       輸入時清除普通錯誤
-       ===================================================== */
+            try {
+                if (currentMode === "register") {
+                    await registerAccount();
+                } else {
+                    await loginAccount();
+                }
+            } catch (error) {
+                showMessage(readableError(error));
+            } finally {
+                setLoading(false);
+            }
+        });
 
-    usernameInput.addEventListener(
-        "input",
-        function () {
+        forgotPasswordButton.addEventListener("click", async () => {
+            hideMessage();
 
-            /*
-             * 鎖定訊息不要被清掉
-             */
+            const email = emailInput.value.trim().toLowerCase();
 
-            if (
-                !errorMessage.textContent.includes(
-                    "登入嘗試過於頻繁"
-                )
-            ) {
-
-                hideError();
-
+            if (!email) {
+                showMessage("請先輸入電子郵件，再申請重設密碼。");
+                emailInput.focus();
+                return;
             }
 
-        }
-    );
+            forgotPasswordButton.disabled = true;
 
+            try {
+                await sendPasswordResetEmail(auth, email);
+                showMessage(
+                    "如果這個電子郵件已註冊，系統會寄送密碼重設信。請檢查收件匣及垃圾郵件。",
+                    "success"
+                );
+            } catch (error) {
+                showMessage(readableError(error));
+            } finally {
+                forgotPasswordButton.disabled = false;
+            }
+        });
 
-    passwordInput.addEventListener(
-        "input",
-        function () {
+        resendVerificationButton.addEventListener("click", async () => {
+            hideMessage();
 
-            if (
-                !errorMessage.textContent.includes(
-                    "登入嘗試過於頻繁"
-                )
-            ) {
+            const email = emailInput.value.trim().toLowerCase();
+            const password = passwordInput.value;
 
-                hideError();
-
+            if (!email || !password) {
+                showMessage("請輸入電子郵件和密碼，才能重新寄送驗證信。");
+                return;
             }
 
-        }
-    );
+            resendVerificationButton.disabled = true;
 
+            try {
+                const credential = await signInWithEmailAndPassword(
+                    auth, email, password
+                );
 
-    /* =====================================================
-       頁面載入時檢查登入鎖定
-       ===================================================== */
+                if (credential.user.emailVerified) {
+                    await signOut(auth);
+                    showMessage("信箱已完成驗證，請重新登入。", "success");
+                    resendVerificationButton.classList.add("hidden");
+                    return;
+                }
 
-    updateLockUI();
+                await sendEmailVerification(credential.user);
+                await signOut(auth);
 
+                showMessage("驗證信已重新寄出，請到信箱查看。", "success");
+            } catch (error) {
+                showMessage(readableError(error));
+            } finally {
+                resendVerificationButton.disabled = false;
+            }
+        });
 
-    /*
-     * 如果目前真的正在鎖定
-     * 啟動倒數
-     */
+        [usernameInput, emailInput, passwordInput, confirmPasswordInput].forEach((input) => {
+            input.addEventListener("input", hideMessage);
+        });
 
-    if (
-        getRemainingLockMs() > 0
-    ) {
-
-        startLockTimer();
-
-    }
-
-
-</script>
-
+        switchMode("login");
+    </script>
 </body>
 </html>
