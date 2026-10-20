@@ -27,6 +27,8 @@
 
         body {
 
+            visibility: hidden;
+
             min-height: 100vh;
 
             font-family:
@@ -1026,42 +1028,68 @@
 
 
 
-<script>
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-firestore.js";
 
+    const firebaseConfig = {
+        apiKey: "AIzaSyC4JcXSSVmQTrEtC4lXoWeDz2Lr3eVGtw",
+        authDomain: "information-4d4f4.firebaseapp.com",
+        projectId: "information-4d4f4",
+        storageBucket: "information-4d4f4.firebasestorage.app",
+        messagingSenderId: "311907004696",
+        appId: "1:311907004696:web:fe43a91660989ccb282e6d",
+        measurementId: "G-SREHE03KC4"
+    };
 
-    /* =====================================================
-       管理員權限
-       ===================================================== */
+    const adminApp = initializeApp(firebaseConfig);
+    const auth = getAuth(adminApp);
+    const db = getFirestore(adminApp);
 
-    const loginUser =
-        sessionStorage.getItem("loginUser") ||
-        localStorage.getItem("loginUser") ||
-        "";
+    let loginUser = "";
+    let userRole = "";
 
+    async function verifyAdminAccess() {
+        const user = await new Promise((resolve, reject) => {
+            let unsubscribe = () => {};
+            unsubscribe = onAuthStateChanged(auth, authenticatedUser => {
+                unsubscribe();
+                resolve(authenticatedUser);
+            }, error => {
+                unsubscribe();
+                reject(error);
+            });
+        });
 
-    const userRole =
-        sessionStorage.getItem("userRole") ||
-        localStorage.getItem("userRole") ||
-        "";
+        if (!user || !user.emailVerified) {
+            if (user) await signOut(auth);
+            throw new Error("請先登入並完成電子郵件驗證。");
+        }
 
+        const profileSnapshot = await getDoc(doc(db, "users", user.uid));
+        if (!profileSnapshot.exists()) {
+            throw new Error("找不到會員資料，無法驗證管理員權限。");
+        }
 
-    /*
-     * 管理員頁面的第一層權限檢查
-     */
+        const profile = profileSnapshot.data();
+        if (profile.role !== "admin") {
+            throw new Error("此帳號沒有管理員權限。");
+        }
 
-    if (
-        userRole !== "admin"
-    ) {
+        loginUser = profile.username || user.email || user.uid;
+        userRole = profile.role;
+        document.body.style.visibility = "visible";
+    }
 
-        alert(
-            "沒有管理員權限。"
-        );
-
-
-        window.location.replace(
-            "../index.html"
-        );
-
+    try {
+        await verifyAdminAccess();
+    } catch (error) {
+        console.error("管理員權限驗證失敗：", error);
+        document.body.style.visibility = "visible";
+        alert(error.message || "無法驗證管理員權限，請重新登入後再試。");
+        window.location.replace("../index.html");
+        throw error;
     }
 
 
