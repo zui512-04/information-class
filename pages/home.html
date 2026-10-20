@@ -85,12 +85,51 @@ function openComposer(type="note"){
  });
 }
 function readableError(error){if(error?.code==="permission-denied")return "資料庫拒絕這次操作，請確認已更新 Firestore 安全規則。";if(error?.code==="unavailable")return "目前連線不穩，請稍後再試。";return error?.message||"操作失敗，請稍後再試。"}
-async function loadPosts(){const list=$("#feedList");list.innerHTML='<div class="loading">正在更新內容…</div>';try{const snap=await getDocs(query(collection(db,"posts"),orderBy("createdAt","desc"),limit(80)));posts=snap.docs.map(d=>({id:d.id,...d.data()}));liked.clear();if(currentUser){await Promise.all(posts.map(async p=>{try{const likeSnap=await getDoc(doc(db,"posts",p.id,"likes",currentUser.uid));if(likeSnap.exists())liked.add(p.id)}catch(e){console.warn("讀取按讚狀態失敗",e)}}))}renderPosts()}catch(err){console.error(err);list.innerHTML=`<div class="empty"><div class="big">☁️</div><strong>暫時無法載入內容</strong><span>${esc(readableError(err))}</span><p style="margin-top:10px">請確認 Firebase 已啟用 Firestore，並發布本頁附上的安全規則。</p></div>`}}
+async function loadPosts(){const list=$("#feedList");list.innerHTML='<div class="loading">正在更新內容…</div>';try{const snap=await getDocs(query(collection(db,"posts"),orderBy("createdAt","desc"),limit(80)));posts=snap.docs.map(d=>({id:d.id,...d.data()}));liked.clear();if(currentUser){await Promise.all(posts.map(async p=>{try{const likeSnap=await getDoc(doc(db,"posts",p.id,"likes",currentUser.uid));if(likeSnap.exists())liked.add(p.id)}catch(e){console.warn("讀取按讚狀態失敗",e)}}))}renderPosts()}catch(err){console.error(err);list.innerHTML=`<div class="empty"><div class="big">☁️</div><strong>暫時無法載入內容</strong><span>${esc(readableError(err))}</span><p style="margin-top:10))}if(activeFilter==="mine"){await showMine()}else{renderPosts()}}catch(err)px">請確認 Firebase 已啟用 Firestore，並發布本頁附上的安全規則。</p></div>`}}
 function renderPosts(){
  const list=$("#feedList");
  let shown=activeFilter==="mine"?posts.filter(p=>p._mine===true):posts.filter(p=>activeFilter==="all"||p.type===activeFilter);
  if(searchTerm){const t=searchTerm.toLowerCase();shown=shown.filter(p=>[p.title,p.content,p.category].some(x=>String(x||"").toLowerCase().includes(t)))}
- if(!shown.length){list.innerHTML=`<div class="empty"><div class="big">${activeFilter==="note"?"🗒️":"🌱"}</div><strong>${searchTerm?"沒有找到符合的內容":"這裡還很安靜"}</strong><span>${searchTerm?"換個關鍵字試試看。":"成為第一個分享想法的人吧！"}</span><div style="margin-top:15px"><button class="btn primary" id="emptyCompose">＋ 發布第一篇</button></div></div>`;$("#emptyCompose")?.addEventListener("click",()=>openComposer(activeFilter==="all"?"note":activeFilter));return}
+
+if (!shown.length) {
+  const emptyTitle = searchTerm
+    ? "沒有找到符合的內容"
+    : activeFilter === "mine"
+      ? "你還沒有發布任何內容"
+      : "這裡還很安靜";
+
+  const emptyMessage = searchTerm
+    ? "換個關鍵字試試看。"
+    : activeFilter === "mine"
+      ? "發布一篇便利貼、提問或文章，之後就能在這裡管理。"
+      : "成為第一個分享想法的人吧！";
+
+  list.innerHTML = `
+    <div class="empty">
+      <div class="big">${activeFilter === "note" ? "🗒️" : "🌱"}</div>
+      <strong>${emptyTitle}</strong>
+      <span>${emptyMessage}</span>
+      ${!searchTerm ? `
+        <div style="margin-top:15px">
+          <button class="btn primary" id="emptyCompose">
+            ＋ 發布第一篇
+          </button>
+        </div>
+      ` : ""}
+    </div>
+  `;
+
+  $("#emptyCompose")?.addEventListener("click", () => {
+    const type = ["note", "question", "post"].includes(activeFilter)
+      ? activeFilter
+      : "note";
+
+    openComposer(type);
+  });
+
+  return;
+}
+
  list.innerHTML=shown.map(p=>{const type=TYPE[p.type]||TYPE.post;const isNote=p.type==="note";const isLiked=liked.has(p.id);const commentsOpen=openedComments.has(p.id);return `<article class="post ${isNote?"category-note":""}" data-post="${esc(p.id)}"><div class="post-top"><div class="type-icon ${esc(p.type)}">${type.icon}</div><div class="post-meta"><div class="post-author">${esc(getDisplayName(p))}</div><div class="post-date">${esc(formatDate(p.createdAt))}</div></div><span class="type-tag">${type.label}</span></div>${p.title?`<h3>${esc(p.title)}</h3>`:""}<div class="post-body">${esc(p.content||"")}</div><div class="post-footer"><button class="action ${isLiked?"liked":""}" data-like="${esc(p.id)}">${isLiked?"♥":"♡"} 按讚</button><button class="action" data-comments="${esc(p.id)}">▤ 留言${commentsOpen?"中":""}</button>${activeFilter==="mine"&&p._mine===true?`<button class="action" data-edit="${esc(p.id)}" type="button">✎ 編輯</button><button class="action delete-action" data-delete="${esc(p.id)}" type="button">🗑️ 刪除貼文</button>`:""}<span class="post-category"># ${esc(p.category||"日常")}</span></div>${commentsOpen?`<div class="comment-box" id="comments-${esc(p.id)}"><div class="loading">載入留言中…</div></div>`:""}</article>`}).join("");
  $$('[data-like]',list).forEach(b=>b.addEventListener("click",()=>toggleLike(b.dataset.like)));$$('[data-comments]',list).forEach(b=>b.addEventListener("click",()=>toggleComments(b.dataset.comments)));$$('[data-edit]',list).forEach(b=>b.addEventListener("click",()=>editPost(b.dataset.edit)));$$('[data-delete]',list).forEach(b=>b.addEventListener("click",()=>deletePost(b.dataset.delete)));
 }
