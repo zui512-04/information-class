@@ -1,113 +1,292 @@
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
-    function signedIn() { return request.auth != null; }
-    function verifiedUser() { return signedIn() && request.auth.token.email_verified == true; }
-    function isSelf(uid) { return signedIn() && request.auth.uid == uid; }
-    function isAdmin() {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function verifiedUser() {
+      return signedIn() && request.auth.token.email_verified == true;
+    }
+
+    function isSelf(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    function hasProfile() {
       return signedIn()
-        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid));
+    }
+
+    function isAdmin() {
+      return hasProfile()
         && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
     }
+
     function ownsPost(postId) {
       return signedIn()
         && exists(/databases/$(database)/documents/postPrivate/$(postId))
         && get(/databases/$(database)/documents/postPrivate/$(postId)).data.authorUid == request.auth.uid;
     }
-    function validPost() {
-      return request.resource.data.keys().hasOnly(['type','title','content','category','anonymous','authorName','createdAt','updatedAt'])
-        && request.resource.data.type in ['note','question','post']
-        && request.resource.data.title is string && request.resource.data.title.size() <= 90
-        && request.resource.data.content is string && request.resource.data.content.size() > 0 && request.resource.data.content.size() <= 5000
-        && request.resource.data.category is string && request.resource.data.category.size() <= 40
-        && request.resource.data.anonymous is bool
-        && request.resource.data.authorName is string && request.resource.data.authorName.size() <= 40;
+
+    function validPostData(data) {
+      return data.keys().hasOnly([
+          'type', 'title', 'content', 'category', 'anonymous',
+          'authorName', 'createdAt', 'updatedAt'
+        ])
+        && data.type in ['note', 'question', 'post']
+        && data.title is string
+        && data.title.size() <= 90
+        && data.content is string
+        && data.content.size() > 0
+        && data.content.size() <= 5000
+        && data.category is string
+        && data.category.size() <= 40
+        && data.anonymous is bool
+        && data.authorName is string
+        && data.authorName.size() <= 40
+        && (
+          data.anonymous
+          ? data.authorName == ''
+          : (
+              hasProfile()
+              && data.authorName == get(
+                /databases/$(database)/documents/users/$(request.auth.uid)
+              ).data.username
+            )
+        );
     }
+
+    // Registration creates the username index and user profile in one batch.
+    // Do not require email verification here: verification happens after registration.
     match /usernames/{username} {
       allow read: if true;
-      allow create: if signedIn() && request.resource.data.keys().hasOnly(['uid']) && request.resource.data.uid == request.auth.uid;
+
+      allow create: if signedIn()
+        && username.matches('^[a-z0-9_]{3,20}$')
+        && request.resource.data.keys().hasOnly(['uid'])
+        && request.resource.data.uid == request.auth.uid
+        && getAfter(
+          /databases/$(database)/documents/users/$(request.auth.uid)
+        ).data.username == username;
+
       allow update, delete: if isAdmin();
     }
+
     match /users/{uid} {
-      allow read: if isSelf(uid) || isAdmin();
+      allow get, list: if isSelf(uid) || isAdmin();
+
+      // Email is not verified until after this atomic registration batch.
       allow create: if isSelf(uid)
-        && request.resource.data.keys().hasOnly(['username','role','createdAt'])
+        && request.resource.data.keys().hasOnly(['username', 'role', 'createdAt'])
         && request.resource.data.username is string
         && request.resource.data.username.matches('^[a-z0-9_]{3,20}$')
-        && request.resource.data.role == 'user';
-      allow update: if (isAdmin() && request.auth.uid != uid)
-        || (isSelf(uid) && request.resource.data.role == resource.data.role
-          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['username']));
-      allow delete: if isAdmin();
+        && request.resource.data.role == 'user'
+        && request.resource.data.createdAt == request.time
+        && getAfter(
+          /databases/$(database)/documents/usernames/$(request.resource.data.username)
+        ).data.uid == request.auth.uid;
+
+      allow update: if (
+          isAdmin()
+          && request.auth.uid != uid
+          && request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['username', 'role'])
+          && request.resource.data.username is string
+          && request.resource.data.username.matches('^[a-z0-9_]{3,20}$')
+          && request.resource.data.role in ['user', 'admin']
+        )
+        || (
+          isSelf(uid)
+          && request.resource.data.role == resource.data.role
+          && request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['username'])
+          && request.resource.data.username is string
+          && request.resource.data.username.matches('^[a-z0-9_]{3,20}$')
+        );
+
+      allow delete: if isAdmin() && request.auth.uid != uid;
+
       match /myPosts/{postId} {
         allow read: if isSelf(uid) || isAdmin();
-        allow create: if isSelf(uid) && verifiedUser()
-          && request.resource.data.keys().hasOnly(['postId','createdAt']) && request.resource.data.postId == postId;
-        allow update: if isAdmin() || (isSelf(uid)
-          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['postId','createdAt'])
-          && request.resource.data.postId == postId);
+
+        allow create: if verifiedUser()
+          && isSelf(uid)
+          && request.resource.data.keys().hasOnly(['postId', 'createdAt'])
+          && request.resource.data.postId == postId
+          && request.resource.data.createdAt == request.time
+          && getAfter(
+            /databases/$(database)/documents/postPrivate/$(postId)
+          ).data.authorUid == request.auth.uid
+          && getAfter(
+            /databases/$(database)/documents/posts/$(postId)
+          ).data.anonymous is bool;
+
+        allow update: if false;
         allow delete: if isSelf(uid) || isAdmin();
       }
     }
+
     match /posts/{postId} {
       allow read: if true;
-      allow create: if verifiedUser() && validPost()
-        && getAfter(/databases/$(database)/documents/postPrivate/$(postId)).data.authorUid == request.auth.uid;
+
+      allow create: if verifiedUser()
+        && validPostData(request.resource.data)
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.updatedAt == request.time
+        && getAfter(
+          /databases/$(database)/documents/postPrivate/$(postId)
+        ).data.authorUid == request.auth.uid;
+
       allow update: if isAdmin()
-        || (verifiedUser() && ownsPost(postId)
-          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['title','content','category','updatedAt'])
-          && request.resource.data.title is string && request.resource.data.title.size() <= 90
-          && request.resource.data.content is string && request.resource.data.content.size() > 0 && request.resource.data.content.size() <= 5000
-          && request.resource.data.category is string && request.resource.data.category.size() <= 40);
+        || (
+          verifiedUser()
+          && ownsPost(postId)
+          && request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['title', 'content', 'category', 'updatedAt'])
+          && request.resource.data.title is string
+          && request.resource.data.title.size() <= 90
+          && request.resource.data.content is string
+          && request.resource.data.content.size() > 0
+          && request.resource.data.content.size() <= 5000
+          && request.resource.data.category is string
+          && request.resource.data.category.size() <= 40
+          && request.resource.data.updatedAt == request.time
+        );
+
       allow delete: if isAdmin() || (verifiedUser() && ownsPost(postId));
+
       match /likes/{uid} {
         allow read: if signedIn();
-        allow create: if verifiedUser() && isSelf(uid) && request.resource.data.keys().hasOnly(['createdAt']);
-        allow delete: if isAdmin() || ownsPost(postId) || (verifiedUser() && isSelf(uid));
+
+        allow create: if verifiedUser()
+          && isSelf(uid)
+          && request.resource.data.keys().hasOnly(['createdAt'])
+          && request.resource.data.createdAt == request.time;
+
         allow update: if false;
+        allow delete: if isAdmin()
+          || ownsPost(postId)
+          || (verifiedUser() && isSelf(uid));
       }
+
       match /comments/{commentId} {
         allow read: if true;
+
         allow create: if verifiedUser()
-          && request.resource.data.keys().hasOnly(['content','anonymous','authorName','createdAt'])
-          && request.resource.data.content is string && request.resource.data.content.size() > 0 && request.resource.data.content.size() <= 1000
-          && request.resource.data.anonymous is bool && request.resource.data.authorName is string && request.resource.data.authorName.size() <= 40;
+          && request.resource.data.keys().hasOnly([
+            'content', 'anonymous', 'authorName', 'createdAt'
+          ])
+          && request.resource.data.content is string
+          && request.resource.data.content.size() > 0
+          && request.resource.data.content.size() <= 1000
+          && request.resource.data.anonymous is bool
+          && request.resource.data.authorName is string
+          && request.resource.data.authorName.size() <= 40
+          && (
+            request.resource.data.anonymous
+            ? request.resource.data.authorName == ''
+            : (
+                hasProfile()
+                && request.resource.data.authorName == get(
+                  /databases/$(database)/documents/users/$(request.auth.uid)
+                ).data.username
+              )
+          )
+          && request.resource.data.createdAt == request.time;
+
         allow update: if isAdmin();
         allow delete: if isAdmin() || ownsPost(postId);
       }
     }
+
     match /postPrivate/{postId} {
-      allow read: if isAdmin() || (signedIn() && resource.data.authorUid == request.auth.uid);
+      allow get: if isAdmin()
+        || (signedIn() && resource.data.authorUid == request.auth.uid);
+
+      allow list: if false;
+
       allow create: if verifiedUser()
-        && request.resource.data.keys().hasOnly(['authorUid','createdAt'])
+        && request.resource.data.keys().hasOnly(['authorUid', 'createdAt'])
         && request.resource.data.authorUid == request.auth.uid
-        && getAfter(/databases/$(database)/documents/posts/$(postId)).data.type in ['note','question','post'];
+        && request.resource.data.createdAt == request.time
+        && getAfter(
+          /databases/$(database)/documents/posts/$(postId)
+        ).data.type in ['note', 'question', 'post'];
+
       allow update: if false;
-      allow delete: if isAdmin() || (verifiedUser() && resource.data.authorUid == request.auth.uid);
+      allow delete: if isAdmin()
+        || (verifiedUser() && resource.data.authorUid == request.auth.uid);
     }
+
     match /reports/{reportId} {
-      allow read, update, delete: if isAdmin();
+      allow read: if isAdmin();
+
       allow create: if verifiedUser()
         && reportId == request.resource.data.postId + '_' + request.auth.uid
-        && request.resource.data.keys().hasOnly(['postId','postTitle','reporterUid','reporterName','reason','details','status','createdAt'])
+        && request.resource.data.keys().hasOnly([
+          'postId', 'postTitle', 'reporterUid', 'reporterName',
+          'reason', 'details', 'status', 'createdAt'
+        ])
         && request.resource.data.postId is string
-        && exists(/databases/$(database)/documents/posts/$(request.resource.data.postId))
-        && request.resource.data.postTitle is string && request.resource.data.postTitle.size() <= 90
+        && exists(
+          /databases/$(database)/documents/posts/$(request.resource.data.postId)
+        )
+        && request.resource.data.postTitle is string
+        && request.resource.data.postTitle.size() <= 90
         && request.resource.data.reporterUid == request.auth.uid
-        && request.resource.data.reporterName is string && request.resource.data.reporterName.size() <= 40
-        && request.resource.data.reason in ['不當或攻擊性內容','騷擾或霸凌','個人資料／隱私','垃圾訊息或廣告','其他']
-        && request.resource.data.details is string && request.resource.data.details.size() <= 500
-        && request.resource.data.status == 'pending';
+        && request.resource.data.reporterName is string
+        && request.resource.data.reporterName.size() <= 40
+        && request.resource.data.reason in [
+          '不當或攻擊性內容', '騷擾或霸凌', '個人資料／隱私',
+          '垃圾訊息或廣告', '其他'
+        ]
+        && request.resource.data.details is string
+        && request.resource.data.details.size() <= 500
+        && request.resource.data.status == 'pending'
+        && request.resource.data.createdAt == request.time;
+
+      allow update: if isAdmin()
+        && request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['status', 'resolvedAt', 'resolvedBy'])
+        && request.resource.data.status in ['pending', 'resolved']
+        && (
+          !('resolvedAt' in request.resource.data)
+          || request.resource.data.resolvedAt == request.time
+        )
+        && (
+          !('resolvedBy' in request.resource.data)
+          || request.resource.data.resolvedBy == request.auth.uid
+        );
+
+      allow delete: if isAdmin();
     }
+
     match /adminLogs/{logId} {
       allow read: if isAdmin();
+
       allow create: if isAdmin()
-        && request.resource.data.keys().hasOnly(['actorUid','actorName','action','targetId','details','createdAt'])
+        && request.resource.data.keys().hasOnly([
+          'actorUid', 'actorName', 'action', 'targetId', 'details', 'createdAt'
+        ])
         && request.resource.data.actorUid == request.auth.uid
-        && request.resource.data.action is string && request.resource.data.action.size() <= 80
-        && request.resource.data.targetId is string && request.resource.data.targetId.size() <= 200
-        && request.resource.data.details is string && request.resource.data.details.size() <= 500;
+        && request.resource.data.actorName is string
+        && request.resource.data.actorName.size() <= 100
+        && request.resource.data.action is string
+        && request.resource.data.action.size() <= 80
+        && request.resource.data.targetId is string
+        && request.resource.data.targetId.size() <= 200
+        && request.resource.data.details is string
+        && request.resource.data.details.size() <= 500
+        && request.resource.data.createdAt == request.time;
+
       allow update, delete: if false;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }
