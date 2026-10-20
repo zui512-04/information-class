@@ -40,7 +40,7 @@ service cloud.firestore {
     match /usernames/{username} {
       // Used by registration to check username uniqueness. Only the UID is stored here.
       allow read: if true;
-      allow create: if verifiedUser()
+      allow create: if signedIn()
         && request.resource.data.keys().hasOnly(['uid'])
         && request.resource.data.uid == request.auth.uid;
       allow update, delete: if isAdmin();
@@ -49,7 +49,7 @@ service cloud.firestore {
     match /users/{uid} {
       allow read: if isSelf(uid) || isAdmin();
       allow create: if isSelf(uid)
-        && verifiedUser()
+        && signedIn()
         && request.resource.data.keys().hasOnly(['username', 'role', 'createdAt'])
         && request.resource.data.username is string
         && request.resource.data.username.matches('^[a-z0-9_]{3,20}$')
