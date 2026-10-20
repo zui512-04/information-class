@@ -997,20 +997,21 @@
 
                 <br>
 
-                目前網站採用瀏覽器
-                <strong>localStorage / sessionStorage</strong>
-                暫存資料，因此屬於前端 Demo 架構。
+                管理員入口現在會透過
+                <strong>Firebase Authentication 與 Firestore users/{uid}.role</strong>
+                驗證身分，不再相信瀏覽器儲存的角色值。
 
                 <br>
 
-                使用者輸入內容在顯示時採用
-                <strong>textContent</strong>
-                處理，以降低 XSS 風險。
+                <strong>重要：</strong>本頁的統計、操作紀錄與部分管理列表仍是
+                <strong>localStorage 前端示範資料</strong>，尚未連接正式 Firestore 管理資料；
+                清除瀏覽器資料可能會使示範內容消失，也不會真正封鎖或刪除網站上的資料。
 
                 <br>
 
-                但真正的帳號驗證與權限控管仍應放在後端。
-                目前版本的管理員權限不能視為正式生產環境的安全驗證。
+                正式上線前，必須將專案中的
+                <strong>firestore.rules</strong>
+                發布到 Firebase Console，並由受信任管理員設定管理員角色。
 
             </div>
 
