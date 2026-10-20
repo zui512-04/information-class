@@ -222,7 +222,76 @@ service cloud.firestore {
     }
 
     match /reports/{reportId} {
+      // Admins can review all reports. A signed-in user can only check their own
+      // deterministic report document (postId_uid), including checking whether it exists.
+      allow get: if isAdmin()
+        || (signedIn() && reportId.matches('^.+_' + request.auth.uid + '
+        && reportId == request.resource.data.postId + '_' + request.auth.uid
+        && request.resource.data.keys().hasOnly([
+          'postId', 'postTitle', 'reporterUid', 'reporterName',
+          'reason', 'details', 'status', 'createdAt'
+        ])
+        && request.resource.data.postId is string
+        && exists(
+          /databases/$(database)/documents/posts/$(request.resource.data.postId)
+        )
+        && request.resource.data.postTitle is string
+        && request.resource.data.postTitle.size() <= 90
+        && request.resource.data.reporterUid == request.auth.uid
+        && request.resource.data.reporterName is string
+        && request.resource.data.reporterName.size() <= 40
+        && request.resource.data.reason in [
+          '不當或攻擊性內容', '騷擾或霸凌', '個人資料／隱私',
+          '垃圾訊息或廣告', '其他'
+        ]
+        && request.resource.data.details is string
+        && request.resource.data.details.size() <= 500
+        && request.resource.data.status == 'pending'
+        && request.resource.data.createdAt == request.time;
+
+      allow update: if isAdmin()
+        && request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['status', 'resolvedAt', 'resolvedBy'])
+        && request.resource.data.status in ['pending', 'resolved']
+        && (
+          !('resolvedAt' in request.resource.data)
+          || request.resource.data.resolvedAt == request.time
+        )
+        && (
+          !('resolvedBy' in request.resource.data)
+          || request.resource.data.resolvedBy == request.auth.uid
+        );
+
+      allow delete: if isAdmin();
+    }
+
+    match /adminLogs/{logId} {
       allow read: if isAdmin();
+
+      allow create: if isAdmin()
+        && request.resource.data.keys().hasOnly([
+          'actorUid', 'actorName', 'action', 'targetId', 'details', 'createdAt'
+        ])
+        && request.resource.data.actorUid == request.auth.uid
+        && request.resource.data.actorName is string
+        && request.resource.data.actorName.size() <= 100
+        && request.resource.data.action is string
+        && request.resource.data.action.size() <= 80
+        && request.resource.data.targetId is string
+        && request.resource.data.targetId.size() <= 200
+        && request.resource.data.details is string
+        && request.resource.data.details.size() <= 500
+        && request.resource.data.createdAt == request.time;
+
+      allow update, delete: if false;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}));
+      allow list: if isAdmin();
 
       allow create: if verifiedUser()
         && reportId == request.resource.data.postId + '_' + request.auth.uid
